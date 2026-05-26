@@ -19,3 +19,23 @@ pub async fn create_pool() ->  Result<PgPool, sqlx::Error> {
 
     Ok(pool)
 }
+
+
+
+
+// 定义一个与数据库表对应的结构体
+#[derive(Debug, sqlx::FromRow)]
+pub struct User {
+    pub id: i32,
+    pub username: String,
+}
+
+// 编写查询接口
+pub async fn get_user_by_id(pool: &PgPool, user_id: i32) -> Result<User, sqlx::Error> {
+    let user = sqlx::query_as::<_, User>("SELECT id, username FROM users WHERE id = $1")
+        .bind(user_id)
+        .fetch_one(pool)
+        .await?;
+
+    Ok(user)
+}

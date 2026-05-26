@@ -52,7 +52,7 @@ async fn main() -> anyhow::Result<()> {
     let pool = infrastructure::db::create_pool().await?;
     tracing::info!("数据库连接成功");
 
-    let app_state = AppState {db: pool};
+    let app_state = AppState {db_pool: pool};
     tracing::info!("state获取成功");
 
     let tls_config = RustlsConfig::from_pem_file(

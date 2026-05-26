@@ -2,5 +2,5 @@ use infrastructure::PgPool;
 
 #[derive(Clone,Debug)]
 pub struct AppState {
-    pub db: PgPool,
+    pub db_pool: PgPool,
 }
