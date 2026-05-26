@@ -45,7 +45,7 @@ async fn main() -> anyhow::Result<()> {
         https: 8443,
     };
 
-    tokio::spawn(redirect_http_to_https(ports));
+
 
     
 
@@ -69,32 +69,16 @@ async fn main() -> anyhow::Result<()> {
     let app =routes::get_router(app_state);
     tracing::info!("路由加载成功");
 
+
+    tracing::info!("🚀 服务器启动中...");
+
+    tokio::spawn(redirect_http_to_https(ports));
+    
     let addr = SocketAddr::from(([127, 0, 0, 1], ports.https));
-    tracing::debug!("🔀 HTTP 监听地址 (重定向): http://{}", ports.http);
+    tracing::debug!("🔀 HTTP 监听地址 (重定向): http://{}",addr);
     axum_server::bind_rustls(addr, tls_config)
         .serve(app.into_make_service())
         .await?;
-
-
-
-  //  let http_addr = SocketAddr::from(([0, 0, 0, 0], 80));
-  //  let https_addr = SocketAddr::from(([0, 0, 0, 0], 443));
-    
-
-   // tracing::info!("🚀 服务器启动中...");
-
-
-
-    //let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await?;
-    
-    //axum::serve(listener, app).await?;
-
-    
-
-
-
-
-
     
     println!("Hello, world!");
     Ok(())
@@ -128,6 +112,6 @@ async fn redirect_http_to_https(ports: Ports) {
 
     let addr = SocketAddr::from(([127, 0, 0, 1], ports.http));
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-    tracing::debug!("🔒 HTTPS 监听地址: https://{}", ports.https);
+    tracing::debug!("🔒 HTTPS 监听地址: https://{}",addr);
     let _ = axum::serve(listener, redirect.into_make_service()).await;
 }
