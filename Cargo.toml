@@ -1,0 +1,21 @@
+[workspace]
+members = [
+    "crates/app", "crates/infrastructure",
+    #"crates/domain",
+    "crates/infrastructure"
+]
+resolver = "2"
+
+[workspace.dependencies]
+# 👇 将本地的 infrastructure 注册进工作区依赖
+infrastructure = { path = "crates/infrastructure" }
+tokio = { version = "1.52", features = ["full"] }
+axum = { version = "0.8", features = ["tracing"] }
+axum-server = { version = "0.8", features = ["tls-rustls"] } # 用于 HTTPS
+hyper = { version = "1.9", features = ["full"] }             # 用于 HTTP 重定向
+rustls-pemfile = "2"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+sqlx = { version = "0.8", features = ["runtime-tokio-native-tls", "postgres", "macros"] }
+anyhow = "1.0"
+dotenvy = "0.15"
