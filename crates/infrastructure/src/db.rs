@@ -1,8 +1,19 @@
-use crate::models::User;
 
+use crate::models::User;
 
 use sqlx::postgres::{PgPool, PgPoolOptions};
 use std::time::Duration;
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum DbError {
+    #[error("User not found")]
+    NotFound,
+    #[error("Database error: {0}")]
+    Sql(#[from] sqlx::Error),
+}
+
+
 pub async fn create_pool() ->  Result<PgPool, sqlx::Error> {
     let database_url  = std::env::var("DATABASE_URL")
             .unwrap_or_else(|_| "postgres://dbuser:dbpass@localhost:5432/dioxusdb".to_string());
@@ -26,11 +37,14 @@ pub async fn create_pool() ->  Result<PgPool, sqlx::Error> {
 
 
 // 编写查询接口
-pub async fn get_user_by_id(pool: &PgPool, user_id: i32) -> Result<User, sqlx::Error> {
+pub async fn get_user_by_id(pool: &PgPool, user_id: i32) -> Result<User, DbError> {
     let user = sqlx::query_as::<_, User>("SELECT id, username FROM users WHERE id = $1")
         .bind(user_id)
-        .fetch_one(pool)
+        .fetch_optional(pool)
         .await?;
 
-    Ok(user)
+    match user {
+        Some(u) => Ok(u),
+        None => Err(DbError::NotFound),
+    }
 }
