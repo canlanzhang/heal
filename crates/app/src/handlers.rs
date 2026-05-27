@@ -1,10 +1,15 @@
 use axum::{
-    Json, extract::{Path, State}, 
+    Json, 
+    http::StatusCode,
+    extract::{Path, State}, 
     response::IntoResponse
 };
 
 use crate::state::AppState; 
-use infrastructure::{db}; // 引入底层的基础设施和连接池
+use infrastructure::{
+    db,
+    models::{User}
+}; // 引入底层的基础设施和连接池
 
 use serde::{Serialize, Deserialize};
 #[derive(Serialize)]
@@ -43,24 +48,21 @@ where
 pub async fn handle_get_user(
     Path(user_id): Path<i32>,
     State(state): State<AppState>,
-) -> impl IntoResponse {
-    // 这里可以使用 state 访问数据库等资源
-    // println!("数据库连接池状态: {:?}", state.db_pool);
-
+) ->  (StatusCode, Json<ApiResponse<User>>) {
     match db::get_user_by_id(&state.db_pool, user_id).await {
         Ok(user) => {
             // 查询成功，返回 JSON 数据
-            // Ok(user) => Json(ApiResponse::success(user)),
-            //Err(_) => Json(ApiResponse::error("查询失败")),
-            println!("找到用户: {:?}", user);
-            // 这里可以将其转为前端需要的 JSON 返回
-            Json(ApiResponse::success(user))
+            tracing::debug!("找到用户: {:?}", user);
+            (StatusCode::OK, Json(ApiResponse::success(user)))
 
         }
         Err(e) => {
-            // 查询失败，处理错误
-            eprintln!("数据库查询失败: {:?}", e);
-            Json(ApiResponse::error(500, "查询失败".to_string()))
+            // 查询失败，处理错误            
+            tracing::debug!("数据库查询失败: {:?}", e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR, 
+                Json(ApiResponse::error(500, "服务器内部错误".to_string()))
+            )
 
         }
     }
