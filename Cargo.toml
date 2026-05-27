@@ -22,6 +22,6 @@ hyper = { version = "1.9", features = ["full"] }             # 用于 HTTP 重�
 rustls-pemfile = "2"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
-sqlx = { version = "0.8", features = ["runtime-tokio-native-tls", "postgres", "macros"] }
+sqlx = { version = "0.8", features = ["runtime-tokio-native-tls", "postgres", "macros","chrono", "time"] }
 anyhow = "1.0"
 dotenvy = "0.15"
