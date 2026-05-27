@@ -2,18 +2,17 @@
 mod state;
 use crate::state::AppState;
 
+mod handlers;
+
 mod routes;
-use routes::get_router;
 
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
-use anyhow::Context;
 use std::path::PathBuf;
 use axum::{
     handler::HandlerWithoutStateExt,
-    http::{uri::Authority, StatusCode, Uri},
+    http::{StatusCode, Uri},
     response::Redirect,
-    routing::get,
-    BoxError, Router,
+    BoxError,
 };
 use axum_server::tls_rustls::RustlsConfig;
 use std::net::SocketAddr;

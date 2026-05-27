@@ -1,3 +1,4 @@
+use serde::{Serialize, Deserialize};
 use sqlx::postgres::{PgPool, PgPoolOptions};
 use std::time::Duration;
 pub async fn create_pool() ->  Result<PgPool, sqlx::Error> {
@@ -24,7 +25,7 @@ pub async fn create_pool() ->  Result<PgPool, sqlx::Error> {
 
 
 // 定义一个与数据库表对应的结构体
-#[derive(Debug, sqlx::FromRow)]
+#[derive(Debug, Serialize, Deserialize, Clone, sqlx::FromRow)]
 pub struct User {
     pub id: i32,
     pub username: String,
