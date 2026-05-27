@@ -8,7 +8,7 @@ use axum::{
 use crate::state::AppState; 
 use infrastructure::{
     db,
-    models::{User}
+    models::{CreateUserPayload,User}
 }; // 引入底层的基础设施和连接池
 
 use serde::{Serialize, Deserialize};
@@ -44,6 +44,26 @@ where
     }
 }
 
+pub async fn create_user_handler(
+    State(state): State<AppState>,
+    Json(payload): Json<CreateUserPayload>, // 👈 自动反序列化请求体的 JSON
+) -> Result<(StatusCode, Json<User>), impl IntoResponse> {
+    
+    // 调用我们刚才写的 db 函数
+    match db::create_user(&state.db_pool, payload).await {
+        Ok(user) => Ok((StatusCode::CREATED, Json(user))), // 返回 201 Created
+        Err(db::DbError::NotFound) => {
+            // 理论上插入不会 NotFound，但为了健壮性可以保留匹配
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Unexpected error".to_string()).into_response())
+        },
+        Err(e) => {
+            // 捕获其他数据库错误（如唯一索引冲突等），返回 500 或 409
+            eprintln!("Database error: {:?}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Failed to create user".to_string()).into_response())
+        }
+    }
+}
+
 
 pub async fn handle_get_user(
     Path(user_id): Path<i32>,
@@ -53,26 +73,18 @@ pub async fn handle_get_user(
         Ok(user) => {
             // 查询成功，返回 JSON 数据
             tracing::debug!("找到用户: {:?}", user);
-            (
-                StatusCode::OK, Json(ApiResponse::success(user))
-            )
+            (StatusCode::OK, Json(ApiResponse::success(user)))
 
         }
         Err(db::DbError::NotFound) => {
-            (
-                StatusCode::NOT_FOUND, 
-                Json(ApiResponse::error(404, "用户不存在".to_string()))
-            )
+            (StatusCode::NOT_FOUND,Json(ApiResponse::error(404, "用户不存在".to_string())))
 
         }
         
         Err(e) => {
             // 查询失败，处理错误            
             tracing::debug!("数据库查询失败: {:?}", e);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR, 
-                Json(ApiResponse::error(500, format!("系统错误: {}", e)))
-            )
+            (StatusCode::INTERNAL_SERVER_ERROR,Json(ApiResponse::error(500, format!("系统错误: {}", e))))
 
         }
     }

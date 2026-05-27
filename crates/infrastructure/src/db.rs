@@ -1,5 +1,5 @@
 
-use crate::models::User;
+use crate::models::{CreateUserPayload,User};
 
 use sqlx::postgres::{PgPool, PgPoolOptions};
 use std::time::Duration;
@@ -35,6 +35,17 @@ pub async fn create_pool() ->  Result<PgPool, sqlx::Error> {
 }
 
 
+pub async fn create_user(pool: &PgPool, payload: CreateUserPayload) -> Result<User, DbError> {
+    let user = sqlx::query_as!(
+        User, 
+        "INSERT INTO users (username) VALUES ($1) RETURNING id, username",
+        payload.username
+    )
+    .fetch_one(pool)
+    .await?; // 如果发生冲突或错误，会自动通过 #[from] 转为 DbError::Sql
+
+    Ok(user)
+}
 
 // 编写查询接口
 pub async fn get_user_by_id(pool: &PgPool, user_id: i32) -> Result<User, DbError> {
