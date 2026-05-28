@@ -8,7 +8,7 @@ use axum::{
 use crate::state::AppState; 
 use infrastructure::{
     db,
-    models::{CreateUserPayload,User}
+    models::{CreateUserPayload,UpdateUserPayload,User}
 }; // 引入底层的基础设施和连接池
 
 use serde::{Serialize, Deserialize};
@@ -64,6 +64,50 @@ pub async fn create_user_handler(
     }
 }
 
+pub async fn delete_user_handler(
+    Path(user_id): Path<i32>, // 👈 从 URL 路径中自动提取 user_id (例如 /users/5)
+    State(state): State<AppState>,
+) -> Result<StatusCode, impl IntoResponse> {
+    
+    // 调用我们刚才写的 db 函数
+    match db::delete_user(&state.db_pool, user_id).await {
+        Ok(()) => Ok(StatusCode::NO_CONTENT), // 返回 204 No Content，表示删除成功且无需返回数据
+        
+        Err(db::DbError::NotFound) => {
+            // 如果数据库没找到这个 ID，说明资源不存在
+            Err((StatusCode::NOT_FOUND, "User not found".to_string()).into_response())
+        },
+        
+        Err(e) => {
+            // 捕获其他数据库错误（如连接失败等）
+            eprintln!("Database error during deletion: {:?}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Failed to delete user".to_string()).into_response())
+        }
+    }
+}
+
+pub async fn update_user_handler(
+    Path(user_id): Path<i32>, // 👈 从 URL 路径中提取 user_id (例如 /users/5)
+    State(state): State<AppState>,
+    Json(payload): Json<UpdateUserPayload>, // 👈 自动反序列化请求体的 JSON (如 {"username": "new_name"})
+) -> Result<(StatusCode, Json<User>), impl IntoResponse> {
+    
+    // 调用我们之前写的 db 函数
+    match db::update_user(&state.db_pool, user_id, payload).await {
+        Ok(user) => Ok((StatusCode::OK, Json(user))), // 返回 200 OK 及更新后的完整用户信息
+        
+        Err(db::DbError::NotFound) => {
+            // 如果数据库没找到这个 ID，说明资源不存在
+            Err((StatusCode::NOT_FOUND, "User not found".to_string()).into_response())
+        },
+        
+        Err(e) => {
+            // 捕获其他数据库错误（如连接失败等）
+            eprintln!("Database error during update: {:?}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "Failed to update user".to_string()).into_response())
+        }
+    }
+}
 
 pub async fn handle_get_user(
     Path(user_id): Path<i32>,

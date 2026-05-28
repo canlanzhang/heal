@@ -1,5 +1,5 @@
 
-use crate::models::{CreateUserPayload,User};
+use crate::models::{CreateUserPayload,UpdateUserPayload,User};
 
 use sqlx::postgres::{PgPool, PgPoolOptions};
 use std::time::Duration;
@@ -55,6 +55,53 @@ pub async fn create_user(pool: &PgPool, payload: CreateUserPayload) -> Result<Us
     Ok(user)
 }
 
+pub async fn delete_user(pool: &PgPool, user_id: i32) -> Result<(), DbError> {
+    let result = sqlx::query!(
+        "DELETE FROM users WHERE id = $1",
+        user_id
+    )
+    .execute(pool)
+    .await?;
+
+    // 检查受影响的行数，如果为 0，说明该 ID 的用户根本不存在
+    if result.rows_affected() == 0 {
+        return Err(DbError::NotFound);
+    }
+
+    Ok(())
+}
+
+pub async fn update_user(
+    pool: &PgPool, 
+    user_id: i32, 
+    payload: UpdateUserPayload // 假设这是一个包含 Option<String> username 的结构体
+) -> Result<User, DbError> {
+    let user = sqlx::query_as!(
+        User,
+        r#"
+        UPDATE users
+        SET 
+            username = COALESCE($1, username), -- 如果传入为 NULL，则保持原值不变
+            updated_at = NOW()                 -- 强制更新时间戳
+        WHERE id = $2
+        RETURNING
+            id,
+            username,
+            created_at AS "created_at!",
+            updated_at AS "updated_at!"
+        "#,
+        payload.username, // 注意：这里需要是 Option<String> 类型
+        user_id
+    )
+    .fetch_optional(pool) // 使用 fetch_optional 防止 ID 不存在时报错
+    .await?;
+
+    match user {
+        Some(u) => Ok(u),
+        None => Err(DbError::NotFound),
+    }
+}
+
 // 编写查询接口
 pub async fn get_user_by_id(pool: &PgPool, user_id: i32) -> Result<User, DbError> {
     let user = sqlx::query_as::<_, User>("SELECT id, username, created_at, updated_at FROM users WHERE id = $1")
@@ -67,3 +114,4 @@ pub async fn get_user_by_id(pool: &PgPool, user_id: i32) -> Result<User, DbError
         None => Err(DbError::NotFound),
     }
 }
+
