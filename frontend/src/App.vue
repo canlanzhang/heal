@@ -26,6 +26,8 @@ onMounted(async () => {
       <h2>后端返回的用户：</h2>
       <p>ID: {{ userInfo.id }}</p>
       <p>用户名: {{ userInfo.username }}</p>
+      <p>创建时间: {{ userInfo.created_at }}</p>
+      <p>修改时间: {{ userInfo.updated_at }}</p>
     </div>
   <HelloWorld />
 

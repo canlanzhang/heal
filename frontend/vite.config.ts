@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://localhost:8443', // 你的 Axum 地址
+        target: 'https://127.0.0.1:8443', // 你的 Axum 地址
         changeOrigin: true,
         secure: false,
       }

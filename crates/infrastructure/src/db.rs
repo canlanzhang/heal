@@ -38,7 +38,15 @@ pub async fn create_pool() ->  Result<PgPool, sqlx::Error> {
 pub async fn create_user(pool: &PgPool, payload: CreateUserPayload) -> Result<User, DbError> {
     let user = sqlx::query_as!(
         User, 
-        "INSERT INTO users (username) VALUES ($1) RETURNING id, username",
+        r#"
+        INSERT INTO users (username)
+        VALUES ($1)
+        RETURNING
+            id,
+            username,
+            created_at as "created_at!",
+            updated_at as "updated_at!"  
+        "#,
         payload.username
     )
     .fetch_one(pool)
@@ -49,7 +57,7 @@ pub async fn create_user(pool: &PgPool, payload: CreateUserPayload) -> Result<Us
 
 // 编写查询接口
 pub async fn get_user_by_id(pool: &PgPool, user_id: i32) -> Result<User, DbError> {
-    let user = sqlx::query_as::<_, User>("SELECT id, username FROM users WHERE id = $1")
+    let user = sqlx::query_as::<_, User>("SELECT id, username, created_at, updated_at FROM users WHERE id = $1")
         .bind(user_id)
         .fetch_optional(pool)
         .await?;

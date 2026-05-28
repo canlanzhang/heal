@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS todos (
 );
 
 --- 下面是自动更新 updated_at 的“魔法”代码 ---
-
+/* 
 -- 3. 创建一个通用的函数，用来自动更新时间
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -37,3 +37,4 @@ CREATE TRIGGER update_todos_updated_at
     BEFORE UPDATE ON todos 
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
+    */

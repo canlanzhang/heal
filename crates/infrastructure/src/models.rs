@@ -13,8 +13,8 @@ pub struct CreateUserPayload {
 pub struct User {
     pub id: i32,
     pub username: String,
-    //pub created_at: DateTime<Utc>,
-    //pub updated_at: DateTime<Utc>, // 👈 加上这个
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>, 
 }
 
 #[derive(Debug, FromRow, Serialize, Deserialize)]
@@ -23,5 +23,5 @@ pub struct Todo {
     pub title: String,
     pub is_done: bool,
     pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>, // 👈 加上这个
+    pub updated_at: DateTime<Utc>, 
 }
