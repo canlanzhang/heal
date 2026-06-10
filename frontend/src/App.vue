@@ -11,7 +11,7 @@ const message = ref('等待后端响应...')
 onMounted(async () => {
   try {
     // 假设你在 Axum 里有一个 GET /api/hello 的接口
-    const res = await fetch('/api/user/1')
+    const res = await fetch('/api/users/1')
     const data = await res.json()
     userInfo.value = data.data
   } catch (e) {
