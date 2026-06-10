@@ -115,3 +115,17 @@ pub async fn get_user_by_id(pool: &PgPool, user_id: i32) -> Result<User, DbError
     }
 }
 
+
+pub async fn find_user_for_login(pool: &PgPool, username: &str) -> Result<User, DbError> {
+    let user = sqlx::query_as::<_, User>(
+        "SELECT id, username, password_hash, created_at, updated_at FROM users WHERE username = $1"
+    )
+    .bind(username)
+    .fetch_optional(pool)
+    .await?;
+
+    match user {
+        Some(u) => Ok(u),
+        None => Err(DbError::NotFound),
+    }
+}

@@ -133,3 +133,19 @@ pub async fn handle_get_user(
         }
     }
 }
+
+// 定义登录成功的响应结构
+#[derive(Serialize)]
+pub struct LoginResponse {
+    pub message: String,
+    pub token: String,
+}
+
+pub async fn login_handler() -> (StatusCode, Json<LoginResponse>) {
+    let response = LoginResponse {
+        message: "登录成功".to_string(),
+        token: "mock-jwt-token-12345".to_string(),
+    };
+tracing::debug!("login_handler");
+    (StatusCode::OK, Json(response))
+}
