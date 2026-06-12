@@ -1,6 +1,7 @@
 
 mod state;
 use crate::state::AppState;
+use infrastructure::errors::AppError;
 
 mod handlers;
 
@@ -16,6 +17,7 @@ use axum::{
 };
 use axum_server::tls_rustls::RustlsConfig;
 use std::net::SocketAddr;
+
 
 #[allow(dead_code)]
 #[derive(Clone, Copy)]
@@ -39,14 +41,21 @@ async fn main() -> anyhow::Result<()> {
     dotenvy::dotenv().ok();
     tracing::info!(".env加载完成");
 
+    let http_port: u16 = std::env::var("APP_PORT_HTTP")
+        .unwrap_or_else(|_| "8080".to_string())
+        .parse()
+        .map_err(|e: std::num::ParseIntError| AppError::PortParse(e.to_string()))?;
+
+    let https_port: u16 = std::env::var("APP_PORT_HTTPS")
+        .unwrap_or_else(|_| "8443".to_string())
+        .parse()
+        .map_err(|e: std::num::ParseIntError| AppError::PortParse(e.to_string()))?; // 🛠️ 自定义错误捕获
+
+
     let ports = Ports {
-        http: 8080,
-        https: 8443,
+        http: http_port,
+        https: https_port,
     };
-
-
-
-    
 
     let pool = infrastructure::db::create_pool().await?;
     tracing::info!("数据库连接成功");
@@ -54,16 +63,27 @@ async fn main() -> anyhow::Result<()> {
     let app_state = AppState {db_pool: pool};
     tracing::info!("state获取成功");
 
+    // 1. 从 .env 读取配置（如果读取不到，则使用兜底相对路径）
+    let rel_cert_path = std::env::var("TLS_CERT_PATH").unwrap_or_else(|_| "certs/cert.pem".to_string());
+    let rel_key_path = std::env::var("TLS_KEY_PATH").unwrap_or_else(|_| "certs/key.pem".to_string());
+
+    // 2. 🛠️ 核心魔法：将编译期宏（锁定在 crates/app 目录）与 .env 里的相对路径动态拼接
+    let cert_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(&rel_cert_path);
+    let key_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(&rel_key_path);
+
+
+
     let tls_config = RustlsConfig::from_pem_file(
-        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("certs")
-            .join("cert.pem"),
-        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("certs")
-            .join("key.pem"),
+        &cert_path,
+        &key_path,
     )
-    .await?;
-    tracing::info!("证书加载成功");
+    .await
+    .map_err(|e| {
+        tracing::error!("❌ 证书加载错误。路径: {}, {}", cert_path.display(), key_path.display());
+        AppError::TlsConfig(e.to_string())
+    })?;
+
+    tracing::info!("🔒 TLS 证书加载成功 (路径: {})", cert_path.display());
 
     let app =routes::get_router(app_state);
     tracing::info!("路由加载成功");

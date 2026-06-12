@@ -21,6 +21,29 @@ impl ErrorResponse {
     }
 }
 
+// ==================== 🛠️ 新增：AppError (系统启动、证书、环境错误) ====================
+
+#[derive(thiserror::Error, Debug)]
+pub enum AppError {
+    #[error("❌ TLS证书加载失败，请检查物理路径。错误原因: {0}")]
+    TlsConfig(String),
+
+    #[error("❌ 环境变量端口解析失败: {0}")]
+    PortParse(String),
+
+    #[error("❌ 数据库初始化连接失败: {0}")]
+    DbInit(String),
+}
+// 系统启动层面的错误通常会让程序退出(panic/return), 
+// 但为了架构统一，我们也为其实现 IntoResponse (以备后续在路由中使用)
+impl IntoResponse for AppError {
+    fn into_response(self) -> Response {
+        let status = StatusCode::INTERNAL_SERVER_ERROR;
+        (status, Json(ErrorResponse::new(self.to_string(), status))).into_response()
+    }
+}
+
+
 // ==================== DbError ====================
 
 #[derive(thiserror::Error, Debug)]
@@ -81,3 +104,5 @@ impl IntoResponse for AuthError {
         (status, Json(ErrorResponse::new(message, status))).into_response()
     }
 }
+
+

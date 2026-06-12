@@ -10,7 +10,7 @@ use jsonwebtoken::{encode, decode,
     EncodingKey, DecodingKey, Header, Validation, Algorithm};
 use validator::Validate;
 use crate::errors::AuthError;
-const JWT_SECRET: &str = "my_super_secret_key";
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claims {
@@ -20,6 +20,17 @@ pub struct Claims {
 }
 
 impl Claims {
+    // 内部辅助函数：安全动态获取密钥
+    fn get_secret() -> String {
+        
+        std::env::var("JWT_SECRET")
+            .unwrap_or_else(|_| {
+                if std::env::var("APP_ENV").unwrap_or_default() == "production" {
+                    panic!("FATAL: JWT_SECRET environment variable is missing in production!");
+                }
+                "fallback_development_secret_key_only_for_dev".to_string()
+            })
+    }
     pub fn generate_token(user_id: &str) -> Result<String,jsonwebtoken::errors::Error> {
         let expiration = Utc::now()
             .checked_add_signed(Duration::hours(24))
@@ -30,14 +41,22 @@ impl Claims {
             sub: user_id.to_string(),
             exp: expiration as usize,
         };
-        encode(&Header::default(), &claims, &EncodingKey::from_secret(JWT_SECRET.as_ref()))
+
+        // 🛠️ 2. 动态读取密钥
+        let secret = Self::get_secret();
+        // println!("JWT_SECRET: {}",secret);
+        encode(&Header::default(), &claims, &EncodingKey::from_secret(secret.as_ref()))
     }
 
     pub fn decode_token(token: &str) -> Result<Self,jsonwebtoken::errors::Error> {
         let validation = Validation::new(Algorithm::HS256);
+
+        // 🛠️ 3. 动态读取密钥
+        let secret = Self::get_secret();
+        
         let token_data = decode::<Claims>(
             token,
-            &DecodingKey::from_secret(JWT_SECRET.as_ref()),
+            &DecodingKey::from_secret(secret.as_ref()),
             &validation,
         )?;
         Ok(token_data.claims)
