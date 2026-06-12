@@ -30,6 +30,7 @@ use bcrypt::{hash,DEFAULT_COST,verify, BcryptError};
 
 // POST /admins
 pub async fn handler_create_admin(
+    _claims: Claims,
     State(state): State<AppState>,
     Json(mut payload): Json<CreateAdminPayload>,
 ) -> Result<Json<ApiResponse<Admin>>, DbError> {
@@ -99,8 +100,8 @@ pub async fn handler_create_user(
     Ok(Json(ApiResponse::success(user)))
 }
 
-// PUT /users/:id
-pub async fn handler_update_user(
+// PATCH  /users/:id
+pub async fn handler_patch_user(
     Path(user_id): Path<i32>,
     State(state): State<AppState>,
     Json(payload): Json<UpdateUserPayload>,

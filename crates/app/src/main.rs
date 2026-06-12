@@ -74,7 +74,7 @@ async fn main() -> anyhow::Result<()> {
     tokio::spawn(redirect_http_to_https(ports));
     
     let addr = SocketAddr::from(([127, 0, 0, 1], ports.https));
-    tracing::debug!("🔀 HTTP 监听地址 (重定向): http://{}",addr);
+    tracing::debug!("🔀 HTTP 监听地址 (重定向): https://{}",addr);
     axum_server::bind_rustls(addr, tls_config)
         .serve(app.into_make_service())
         .await?;
@@ -111,6 +111,6 @@ async fn redirect_http_to_https(ports: Ports) {
 
     let addr = SocketAddr::from(([127, 0, 0, 1], ports.http));
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
-    tracing::debug!("🔒 HTTPS 监听地址: https://{}",addr);
+    tracing::debug!("🔒 HTTPS 监听地址: http://{}",addr);
     let _ = axum::serve(listener, redirect.into_make_service()).await;
 }

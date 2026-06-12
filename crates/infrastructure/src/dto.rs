@@ -1,8 +1,17 @@
 
+use axum::{
+    extract::FromRequestParts,
+    http::request::Parts,
+};
+
 use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Duration, Utc}; 
-use jsonwebtoken::{encode, EncodingKey, Header};
+use jsonwebtoken::{encode, decode, 
+    EncodingKey, DecodingKey, Header, Validation, Algorithm};
 use validator::Validate;
+use crate::errors::AuthError;
+const JWT_SECRET: &str = "my_super_secret_key";
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claims {
     pub sub: String,
@@ -21,9 +30,58 @@ impl Claims {
             sub: user_id.to_string(),
             exp: expiration as usize,
         };
-        encode(&Header::default(), &claims, &EncodingKey::from_secret("my_super_secret_key".as_ref()))
+        encode(&Header::default(), &claims, &EncodingKey::from_secret(JWT_SECRET.as_ref()))
+    }
+
+    pub fn decode_token(token: &str) -> Result<Self,jsonwebtoken::errors::Error> {
+        let validation = Validation::new(Algorithm::HS256);
+        let token_data = decode::<Claims>(
+            token,
+            &DecodingKey::from_secret(JWT_SECRET.as_ref()),
+            &validation,
+        )?;
+        Ok(token_data.claims)
+
     }
 }
+
+
+
+// 3. 🛠️ 新增：为 Claims 实现 Axum 提取器守护路由
+
+impl<S> FromRequestParts<S> for Claims
+where
+    S: Send + Sync,
+{
+    type Rejection = AuthError; // 统一抛出你的 AuthError
+
+    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+        // 从请求头提取 Authorization
+        let auth_header = parts
+            .headers
+            .get(axum::http::header::AUTHORIZATION)
+            .and_then(|value| value.to_str().ok())
+            .ok_or(AuthError::MissingCredentials)?; // 找不到 Header 返回 400 错误
+
+        // 验证 Bearer 前缀
+        if !auth_header.starts_with("Bearer ") {
+            return Err(AuthError::InvalidToken);
+        }
+        let token = &auth_header[7..];
+
+        // 验证 Token 合法性与过期时间
+        let claims = Claims::decode_token(token).map_err(|_| AuthError::InvalidToken)?;
+
+        Ok(claims)
+    }
+}
+
+
+
+
+
+
+
 
 #[derive(Serialize)]
 pub struct ApiResponse<T> {
@@ -105,10 +163,3 @@ struct AuthPayload {
     client_secret: String,
 }
 
-#[derive(Debug)]
-enum AuthError {
-    WrongCredentials,
-    MissingCredentials,
-    TokenCreation,
-    InvalidToken,
-}
