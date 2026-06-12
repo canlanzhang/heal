@@ -1,6 +1,10 @@
 
 use crate::entity::{Admin,User};
-use crate::dto::{CreateUserPayload,UpdateUserPayload};
+use crate::dto::{
+    CreateAdminPayload,
+    CreateUserPayload,
+    UpdateUserPayload,
+};
 use crate::errors::DbError;
 use sqlx::postgres::{PgPool, PgPoolOptions};
 use std::time::Duration;
@@ -25,6 +29,62 @@ pub async fn create_pool() ->  Result<PgPool, DbError> {
     Ok(pool)
 }
 
+pub async fn create_admin(pool: &PgPool, payload: CreateAdminPayload) -> Result<Admin, DbError> {
+    let admin = sqlx::query_as!(
+        Admin,
+        r#"
+        INSERT INTO heal_admin (
+            username,
+            email,
+            password_hash,
+            role
+        ) VALUES ($1, $2, $3, $4)
+        RETURNING
+            id,
+            username,
+            email,
+            password_hash,
+            role,
+            created_at as "created_at!",
+            updated_at as "updated_at!"
+        "#,
+        payload.username,
+        payload.email,
+        payload.password_hash,
+        payload.role
+    )
+    .fetch_one(pool)
+    .await
+    .map_err(DbError::Sql)?;
+
+    Ok(admin)
+}
+
+pub async fn find_user_for_login(pool: &PgPool, username: &str) -> Result<Admin, DbError> {
+    let admin = sqlx::query_as!(
+        Admin,
+        r#"
+        SELECT
+            id,
+            username,
+            email,
+            password_hash,
+            role,
+            created_at as "created_at!",
+            updated_at as "updated_at!"
+        FROM heal_admin
+        WHERE username = $1
+        "#,
+        username
+    )
+    .fetch_optional(pool)
+    .await?;
+
+    match admin {
+        Some(u) => Ok(u),
+        None => Err(DbError::NotFound),
+    }
+}
 
 pub async fn create_user(pool: &PgPool, payload: CreateUserPayload) -> Result<User, DbError> {
     let user = sqlx::query_as!(
@@ -115,28 +175,3 @@ pub async fn get_user_by_id(pool: &PgPool, user_id: i32) -> Result<User, DbError
 
 
 
-pub async fn find_user_for_login(pool: &PgPool, username: &str) -> Result<Admin, DbError> {
-    let admin = sqlx::query_as!(
-        Admin,
-        r#"
-        SELECT
-            id,
-            username,
-            email,
-            password_hash,
-            role,
-            created_at as "created_at!",
-            updated_at as "updated_at!"
-        FROM heal_admin
-        WHERE username = $1
-        "#,
-        username
-    )
-    .fetch_optional(pool)
-    .await?;
-
-    match admin {
-        Some(u) => Ok(u),
-        None => Err(DbError::NotFound),
-    }
-}

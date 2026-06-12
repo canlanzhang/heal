@@ -29,6 +29,10 @@ pub enum DbError {
     NotFound,
     #[error("Database error: {0}")]
     Sql(#[from] sqlx::Error),
+    #[error("Invalid credentials")]
+    Unauthorized,
+    #[error("Token generation failed")]
+    TokenError,
 }
 
 impl IntoResponse for DbError {
@@ -36,6 +40,8 @@ impl IntoResponse for DbError {
         let (status, message) = match self {
             DbError::NotFound => (StatusCode::NOT_FOUND, self.to_string()),
             DbError::Sql(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()),
+            DbError::Unauthorized => (StatusCode::UNAUTHORIZED, self.to_string()),
+            DbError::TokenError => (StatusCode::INTERNAL_SERVER_ERROR, "Token generation failed".to_string()),
         };
 
         (status, Json(ErrorResponse::new(message, status))).into_response()
