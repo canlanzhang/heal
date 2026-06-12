@@ -73,15 +73,14 @@ pub async fn find_user_for_login(pool: &PgPool, username: &str) -> Result<Admin,
         username
     )
     .fetch_optional(pool)
-    .await?;
+    .await
+    .map_err(DbError::Sql)?;
 
-    match admin {
-        Some(u) => Ok(u),
-        None => Err(DbError::NotFound),
-    }
+    admin.ok_or(DbError::NotFound)
+
 }
 
-pub async fn create_user(pool: &PgPool, payload: CreateUserPayload) -> Result<User, DbError> {
+pub async fn create_user(pool: &PgPool, payload: &CreateUserPayload) -> Result<User, DbError> {
     let user = sqlx::query_as!(
         User, 
         r#"
@@ -96,7 +95,8 @@ pub async fn create_user(pool: &PgPool, payload: CreateUserPayload) -> Result<Us
         payload.username
     )
     .fetch_one(pool)
-    .await?; // 如果发生冲突或错误，会自动通过 #[from] 转为 DbError::Sql
+    .await
+    .map_err(DbError::Sql)?; // 如果发生冲突或错误，会自动通过 #[from] 转为 DbError::Sql
 
     Ok(user)
 }
@@ -120,7 +120,7 @@ pub async fn delete_user(pool: &PgPool, user_id: i32) -> Result<(), DbError> {
 pub async fn update_user(
     pool: &PgPool,
     user_id: i32,
-    payload: UpdateUserPayload,
+    payload: &UpdateUserPayload,
 ) -> Result<User, DbError> {
     let user = sqlx::query_as!(
         User,
@@ -140,7 +140,8 @@ pub async fn update_user(
         user_id
     )
     .fetch_optional(pool)
-    .await?;
+    .await
+    .map_err(DbError::Sql)?;
 
     user.ok_or(DbError::NotFound) // ✅ 更简洁的写法
 }
@@ -160,12 +161,10 @@ pub async fn get_user_by_id(pool: &PgPool, user_id: i32) -> Result<User, DbError
         user_id
     )
     .fetch_optional(pool)
-    .await?;
+    .await
+    .map_err(DbError::Sql)?;
 
-    match user {
-        Some(u) => Ok(u),
-        None => Err(DbError::NotFound),
-    }
+    user.ok_or(DbError::NotFound)
 }
 
 

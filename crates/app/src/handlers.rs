@@ -95,7 +95,7 @@ pub async fn handler_create_user(
     Json(payload): Json<CreateUserPayload>, // 👈 自动反序列化请求体的 JSON
 ) -> Result<Json<ApiResponse<User>>, DbError> {
     
-    let user = db::create_user(&state.db_pool, payload).await?;
+    let user = db::create_user(&state.db_pool, &payload).await?;
     Ok(Json(ApiResponse::success(user)))
 }
 
@@ -105,7 +105,7 @@ pub async fn handler_update_user(
     State(state): State<AppState>,
     Json(payload): Json<UpdateUserPayload>,
 ) -> Result<Json<ApiResponse<User>>, DbError> {
-    let user = db::update_user(&state.db_pool, user_id, payload).await?;
+    let user = db::update_user(&state.db_pool, user_id, &payload).await?;
     Ok(Json(ApiResponse::success(user)))
 }
 
