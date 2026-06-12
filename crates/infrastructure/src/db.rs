@@ -4,7 +4,6 @@ use crate::dto::{CreateUserPayload,UpdateUserPayload};
 use crate::errors::DbError;
 use sqlx::postgres::{PgPool, PgPoolOptions};
 use std::time::Duration;
-use thiserror::Error;
 
 pub async fn create_pool() ->  Result<PgPool, DbError> {
     let database_url  = std::env::var("DATABASE_URL")

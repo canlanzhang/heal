@@ -55,78 +55,45 @@ where
     }
 }
 
-pub async fn create_user_handler(
-    State(state): State<AppState>,
-    Json(payload): Json<CreateUserPayload>, // 👈 自动反序列化请求体的 JSON
-) -> Result<(StatusCode, Json<User>), impl IntoResponse> {
-    
-    // 调用我们刚才写的 db 函数
-    match db::create_user(&state.db_pool, payload).await {
-        Ok(user) => Ok((StatusCode::CREATED, Json(user))), // 返回 201 Created
-        Err(DbError::NotFound) => {
-            // 理论上插入不会 NotFound，但为了健壮性可以保留匹配
-            Err((StatusCode::INTERNAL_SERVER_ERROR, "Unexpected error".to_string()).into_response())
-        },
-        Err(e) => {
-            // 捕获其他数据库错误（如唯一索引冲突等），返回 500 或 409
-            eprintln!("Database error: {:?}", e);
-            Err((StatusCode::INTERNAL_SERVER_ERROR, "Failed to create user".to_string()).into_response())
-        }
-    }
-}
-
-pub async fn delete_user_handler(
-    Path(user_id): Path<i32>, // 👈 从 URL 路径中自动提取 user_id (例如 /users/5)
-    State(state): State<AppState>,
-) -> Result<StatusCode, impl IntoResponse> {
-    
-    // 调用我们刚才写的 db 函数
-    match db::delete_user(&state.db_pool, user_id).await {
-        Ok(()) => Ok(StatusCode::NO_CONTENT), // 返回 204 No Content，表示删除成功且无需返回数据
-        
-        Err(DbError::NotFound) => {
-            // 如果数据库没找到这个 ID，说明资源不存在
-            Err((StatusCode::NOT_FOUND, "User not found".to_string()).into_response())
-        },
-        
-        Err(e) => {
-            // 捕获其他数据库错误（如连接失败等）
-            eprintln!("Database error during deletion: {:?}", e);
-            Err((StatusCode::INTERNAL_SERVER_ERROR, "Failed to delete user".to_string()).into_response())
-        }
-    }
-}
-
-pub async fn update_user_handler(
-    Path(user_id): Path<i32>, // 👈 从 URL 路径中提取 user_id (例如 /users/5)
-    State(state): State<AppState>,
-    Json(payload): Json<UpdateUserPayload>, // 👈 自动反序列化请求体的 JSON (如 {"username": "new_name"})
-) -> Result<(StatusCode, Json<User>), impl IntoResponse> {
-    
-    // 调用我们之前写的 db 函数
-    match db::update_user(&state.db_pool, user_id, payload).await {
-        Ok(user) => Ok((StatusCode::OK, Json(user))), // 返回 200 OK 及更新后的完整用户信息
-        
-        Err(DbError::NotFound) => {
-            // 如果数据库没找到这个 ID，说明资源不存在
-            Err((StatusCode::NOT_FOUND, "User not found".to_string()).into_response())
-        },
-        
-        Err(e) => {
-            // 捕获其他数据库错误（如连接失败等）
-            eprintln!("Database error during update: {:?}", e);
-            Err((StatusCode::INTERNAL_SERVER_ERROR, "Failed to update user".to_string()).into_response())
-        }
-    }
-}
-
+// GET /users/:id
 pub async fn handle_get_user(
     Path(user_id): Path<i32>,
     State(state): State<AppState>,
-) -> Result<Json<User>, DbError> {
+) -> Result<Json<ApiResponse<User>>, DbError> {
     let user = db::get_user_by_id(&state.db_pool, user_id).await?;
-    Ok(Json(user))
+    Ok(Json(ApiResponse::success(user)))
 }
+
+// POST /users
+pub async fn handler_create_user(
+    State(state): State<AppState>,
+    Json(payload): Json<CreateUserPayload>, // 👈 自动反序列化请求体的 JSON
+) -> Result<Json<ApiResponse<User>>, DbError> {
+    
+    let user = db::create_user(&state.db_pool, payload).await?;
+    Ok(Json(ApiResponse::success(user)))
+}
+
+// PUT /users/:id
+pub async fn handler_update_user(
+    Path(user_id): Path<i32>,
+    State(state): State<AppState>,
+    Json(payload): Json<UpdateUserPayload>,
+) -> Result<Json<ApiResponse<User>>, DbError> {
+    let user = db::update_user(&state.db_pool, user_id, payload).await?;
+    Ok(Json(ApiResponse::success(user)))
+}
+
+// DELETE /users/:id
+pub async fn handler_delete_user(
+    Path(user_id): Path<i32>,
+    State(state): State<AppState>,
+) -> Result<Json<ApiResponse<()>>, DbError> {
+    db::delete_user(&state.db_pool, user_id).await?;
+    Ok(Json(ApiResponse::success(())))
+}
+
+
 
 // 定义登录成功的响应结构
 #[derive(Serialize)]
