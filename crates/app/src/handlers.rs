@@ -9,7 +9,9 @@ use crate::state::AppState;
 use infrastructure::{
     db,
     models::{CreateUserPayload,UpdateUserPayload,User,
-        AdminPayload,Admin}
+        AdminPayload,Admin,
+        Claims,
+    }
 }; // 引入底层的基础设施和连接池
 
 use serde::{Serialize, Deserialize};
@@ -141,14 +143,14 @@ pub async fn handle_get_user(
 // 定义登录成功的响应结构
 #[derive(Serialize)]
 pub struct LoginResponse {
-    pub message: String,
     pub token: String,
+    pub username: String,
 }
 
 pub async fn login_handler(
     State(state): State<AppState>,
     Json(payload): Json<AdminPayload>,
-) -> Result<(StatusCode, Json<Admin>), impl IntoResponse> {
+) -> Result<(StatusCode, Json<LoginResponse>), impl IntoResponse> {
 
     //let hashed = hash("123456", DEFAULT_COST).unwrap();
     //println!("新哈希: {}", hashed);
@@ -176,8 +178,24 @@ pub async fn login_handler(
                 ).into_response());
             }
 
+            let token = match Claims::generate_token(&admin.id.to_string()){
+                Ok(token) => token,
+                Err(_) => {
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR, 
+                        "Failed to generate token".to_string(),
+                    ).into_response());
+                }
+            };
+            
+            let response = LoginResponse {
+                token,
+                username: admin.username.clone(),
+                // id: admin.id,
+            };
+
             // ✅ 登录成功返回 200 OK
-            Ok((StatusCode::OK, Json(admin)))
+            Ok((StatusCode::OK, Json(response)))
         }
         Err(db::DbError::NotFound) => {
             // ✅ 用户不存在也返回 401，和密码错误保持一致

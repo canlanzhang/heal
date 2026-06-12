@@ -1,7 +1,8 @@
 
 use serde::{Serialize, Deserialize};
 use sqlx::FromRow;
-use chrono::{DateTime, Utc}; 
+use chrono::{DateTime, Duration, Utc}; 
+use jsonwebtoken::{encode, EncodingKey, Header};
 
 
 #[derive(Debug, Deserialize)]
@@ -53,10 +54,25 @@ pub struct Admin {
 
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct Claims {
-    sub: String,
-    company: String,
-    exp: usize,
+pub struct Claims {
+    pub sub: String,
+    //company: String,
+    pub exp: usize,
+}
+
+impl Claims {
+    pub fn generate_token(user_id: &str) -> Result<String,jsonwebtoken::errors::Error> {
+        let expiration = Utc::now()
+            .checked_add_signed(Duration::hours(24))
+            .expect("Valid timestamp")
+            .timestamp();
+
+        let claims = Claims {
+            sub: user_id.to_string(),
+            exp: expiration as usize,
+        };
+        encode(&Header::default(), &claims, &EncodingKey::from_secret("my_super_secret_key".as_ref()))
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -78,3 +94,4 @@ enum AuthError {
     TokenCreation,
     InvalidToken,
 }
+
