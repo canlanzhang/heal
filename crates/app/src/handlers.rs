@@ -9,7 +9,8 @@ use crate::state::AppState;
 use infrastructure::{
     db, 
     dto::{
-        AdminPayload, ApiResponse, Claims, CreateAdminPayload, CreateUserPayload, LoginResponse, UpdateUserPayload, ValidatedJson
+        AdminPayload, UpdateAdminPayload,
+        ApiResponse, Claims, CreateAdminPayload, CreateUserPayload, LoginResponse, UpdateUserPayload, ValidatedJson
 
     }, 
     entity::{
@@ -40,6 +41,34 @@ pub async fn handler_create_admin(
     Ok(Json(ApiResponse::success(admin)))
 }
 
+// PATCH /api/admins/:id
+pub async fn handler_patch_admin(
+    _claims: Claims, // 🛠️ 鉴权守卫：必须登录才能修改
+    Path(admin_id): Path<i32>,
+    State(state): State<AppState>,
+    ValidatedJson(mut payload): ValidatedJson<UpdateAdminPayload>, // 🛠️ 防弹衣：自动触发格式校验
+) -> Result<Json<ApiResponse<Admin>>, DbError> {
+    
+    // 如果前端传了新密码，必须先进行加密转换，否则不能直接入库！
+    if let Some(plain_password) = payload.password {
+        let hashed = hash(&plain_password, DEFAULT_COST)
+            .map_err(|_| DbError::Internal("Password hashing failed".to_string()))?;
+        payload.password = Some(hashed);
+    }
+
+    let admin = db::update_admin(&state.db_pool, admin_id, &payload).await?;
+    Ok(Json(ApiResponse::success(admin)))
+}
+
+// DELETE /api/admins/:id
+pub async fn handler_delete_admin(
+    _claims: Claims, // 🛠️ 鉴权守卫：必须登录才能删除
+    Path(admin_id): Path<i32>,
+    State(state): State<AppState>,
+) -> Result<Json<ApiResponse<()>>, DbError> {
+    db::delete_admin(&state.db_pool, admin_id).await?;
+    Ok(Json(ApiResponse::success(())))
+}
 
 
 

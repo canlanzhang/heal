@@ -155,6 +155,22 @@ pub struct CreateAdminPayload {
     pub role: Option<String>,
 }
 
+#[derive(Debug, Deserialize, validator::Validate)]
+pub struct UpdateAdminPayload {
+    // 允许局部更新：传了就改，没传就保持原样
+    #[validate(length(min = 3, max = 16))]
+    pub username: Option<String>,
+    
+    #[validate(email)]
+    pub email: Option<String>,
+    
+    // 如果传了新密码，需要支持局部修改
+    pub password: Option<String>,
+    
+    pub role: Option<String>,
+}
+
+
 #[derive(Debug, Deserialize)]
 pub struct AdminPayload {
     pub username: String,

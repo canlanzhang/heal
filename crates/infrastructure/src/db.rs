@@ -1,7 +1,7 @@
 
 use crate::entity::{Admin,User};
 use crate::dto::{
-    AdminPayload, CreateAdminPayload, CreateUserPayload, UpdateUserPayload
+    AdminPayload, CreateAdminPayload,UpdateAdminPayload, CreateUserPayload, UpdateUserPayload
 };
 use crate::errors::DbError;
 use sqlx::postgres::{PgPool, PgPoolOptions};
@@ -55,6 +55,52 @@ pub async fn create_admin(pool: &PgPool, payload:&CreateAdminPayload) -> Result<
     .map_err(DbError::Sql)?;
 
     Ok(admin)
+}
+
+pub async fn update_admin(
+    pool: &PgPool,
+    admin_id: i32,
+    payload: &UpdateAdminPayload,
+) -> Result<Admin, DbError> {
+    let admin = sqlx::query_as!(
+        Admin,
+        r#"
+        UPDATE heal_admin
+        SET 
+            username = COALESCE($1, username),
+            email = COALESCE($2, email),
+            password_hash = COALESCE($3, password_hash),
+            role = COALESCE($4, role)
+        WHERE id = $5
+        RETURNING id, username, email, password_hash, role
+        "#,
+        payload.username,
+        payload.email,
+        payload.password, // 注意：传入此函数前，密码必须已经在 handler 里被 hash 加密完毕
+        payload.role,
+        admin_id
+    )
+    .fetch_optional(pool)
+    .await
+    .map_err(DbError::Sql)?;
+
+    admin.ok_or(DbError::NotFound)
+}
+
+pub async fn delete_admin(pool: &PgPool, admin_id: i32) -> Result<(), DbError> {
+    let result = sqlx::query!(
+        "DELETE FROM heal_admin WHERE id = $1",
+        admin_id
+    )
+    .execute(pool)
+    .await
+    .map_err(DbError::Sql)?;
+
+    if result.rows_affected() == 0 {
+        return Err(DbError::NotFound);
+    }
+
+    Ok(())
 }
 
 pub async fn find_user_for_login(pool: &PgPool, username: &str) -> Result<Admin, DbError> {

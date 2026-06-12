@@ -2,7 +2,7 @@
 use axum::{routing::{post, delete, patch, get}, Router};
 use crate::state::AppState;
 use crate::handlers::{
-    handler_create_admin,
+    handler_create_admin,handler_patch_admin,handler_delete_admin,
     login_handler,
     handler_create_user, handler_delete_user, handler_patch_user, handle_get_user};
 use tower_http::cors::CorsLayer;
@@ -14,6 +14,8 @@ pub fn get_router(state: AppState) -> Router {
     Router::new()
         .route("/api/admins", post(handler_create_admin))
         .route("/api/login", post(login_handler))
+        .route("/api/admins/{id}", patch(handler_patch_admin))   // 🛠️ 绑定 PATCH 局部更新
+        .route("/api/admins/{id}", delete(handler_delete_admin)) // 🛠️ 绑定 DELETE 删除
        
         
         .route("/api/health", get(health_check))
