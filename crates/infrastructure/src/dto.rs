@@ -67,9 +67,9 @@ pub struct LoginResponse {
 #[derive(Deserialize)]
 pub struct CreateAdminPayload {
     pub username: String,
-    pub email: String,
-    pub password_hash: String,
-    pub role: String,
+    pub email: Option<String>,
+    pub password: String,
+    pub role: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]

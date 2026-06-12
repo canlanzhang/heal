@@ -5,9 +5,9 @@ use chrono::{DateTime, Utc};
 pub struct Admin {
     pub id: i32,
     pub username: String,
-    pub email:  Option<String>,
+    pub email: Option<String>,
     pub password_hash: String,
-    pub role:  Option<String>,
+    pub role: Option<String>,
     pub created_at: DateTime<chrono::Utc>,
     pub updated_at: DateTime<chrono::Utc>,
 }

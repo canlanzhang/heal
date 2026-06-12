@@ -7,21 +7,25 @@ use axum::{
 
 use crate::state::AppState; 
 use infrastructure::{
-    db, dto::{
+    db, 
+    dto::{
         Claims,
         ApiResponse,
         LoginResponse,AdminPayload,
         CreateAdminPayload, CreateUserPayload, UpdateUserPayload
 
-    }, entity::{
+    }, 
+    entity::{
         Admin,User,
 
-    }, errors::*
+    }, 
+    errors::*,
+
 }; // 引入底层的基础设施和连接池
 
 use serde::{Serialize, Deserialize};
 use bcrypt::{hash,DEFAULT_COST,verify, BcryptError};
-
+use chrono::Utc;
 
 
 
@@ -30,7 +34,21 @@ pub async fn handler_create_admin(
     State(state): State<AppState>,
     Json(payload): Json<CreateAdminPayload>,
 ) -> Result<Json<ApiResponse<Admin>>, DbError> {
-    let admin = db::create_admin(&state.db_pool, payload).await?;
+     // 1. 密码加密 (关键步骤)
+    let hashed_password  = hash(&payload.password, DEFAULT_COST)
+        .map_err(|_|DbError::Internal("Password hashing failed".to_string()))?;
+    //let admin = db::create_admin(&state.db_pool, payload).await?;
+    let new_admin = Admin {
+        id: 0, // 数据库自增
+        username: payload.username,
+        email: payload.email,
+        password_hash: hashed_password, // ✅ 存入的是加密后的字符串
+        role: payload.role,
+        created_at: Utc::now(),
+        updated_at: Utc::now(),
+    };
+
+    let admin = db::create_admin(&state.db_pool, new_admin).await?;
     Ok(Json(ApiResponse::success(admin)))
 }
 

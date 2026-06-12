@@ -29,7 +29,7 @@ pub async fn create_pool() ->  Result<PgPool, DbError> {
     Ok(pool)
 }
 
-pub async fn create_admin(pool: &PgPool, payload: CreateAdminPayload) -> Result<Admin, DbError> {
+pub async fn create_admin(pool: &PgPool, admin:Admin) -> Result<Admin, DbError> {
     let admin = sqlx::query_as!(
         Admin,
         r#"
@@ -48,10 +48,10 @@ pub async fn create_admin(pool: &PgPool, payload: CreateAdminPayload) -> Result<
             created_at as "created_at!",
             updated_at as "updated_at!"
         "#,
-        payload.username,
-        payload.email,
-        payload.password_hash,
-        payload.role
+        admin.username,
+        admin.email,
+        admin.password_hash,
+        admin.role
     )
     .fetch_one(pool)
     .await

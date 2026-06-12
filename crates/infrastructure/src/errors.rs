@@ -33,6 +33,11 @@ pub enum DbError {
     Unauthorized,
     #[error("Token generation failed")]
     TokenError,
+    // 新增：处理业务逻辑错误
+    #[error("Bad request: {0}")]
+    BadRequest(String),
+    #[error("Internal server error: {0}")]
+    Internal(String),
 }
 
 impl IntoResponse for DbError {
@@ -42,6 +47,8 @@ impl IntoResponse for DbError {
             DbError::Sql(_) => (StatusCode::INTERNAL_SERVER_ERROR, "Database error".to_string()),
             DbError::Unauthorized => (StatusCode::UNAUTHORIZED, self.to_string()),
             DbError::TokenError => (StatusCode::INTERNAL_SERVER_ERROR, "Token generation failed".to_string()),
+            DbError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
+            DbError::Internal(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),
         };
 
         (status, Json(ErrorResponse::new(message, status))).into_response()
