@@ -1,5 +1,5 @@
 
-use crate::models::{CreateUserPayload,UpdateUserPayload,User};
+use crate::models::{CreateUserPayload,UpdateUserPayload,User,Admin};
 
 use sqlx::postgres::{PgPool, PgPoolOptions};
 use std::time::Duration;
@@ -116,15 +116,29 @@ pub async fn get_user_by_id(pool: &PgPool, user_id: i32) -> Result<User, DbError
 }
 
 
-pub async fn find_user_for_login(pool: &PgPool, username: &str) -> Result<User, DbError> {
-    let user = sqlx::query_as::<_, User>(
-        "SELECT id, username, password_hash, created_at, updated_at FROM users WHERE username = $1"
+
+
+pub async fn find_user_for_login(pool: &PgPool, username: &str) -> Result<Admin, DbError> {
+    let admin = sqlx::query_as!(
+        Admin,
+        r#"
+        SELECT
+            id,
+            username,
+            email,
+            password_hash,
+            role,
+            created_at as "created_at!",
+            updated_at as "updated_at!"
+        FROM heal_admin
+        WHERE username = $1
+        "#,
+        username
     )
-    .bind(username)
     .fetch_optional(pool)
     .await?;
 
-    match user {
+    match admin {
         Some(u) => Ok(u),
         None => Err(DbError::NotFound),
     }

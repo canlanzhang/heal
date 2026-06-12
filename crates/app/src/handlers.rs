@@ -8,10 +8,14 @@ use axum::{
 use crate::state::AppState; 
 use infrastructure::{
     db,
-    models::{CreateUserPayload,UpdateUserPayload,User}
+    models::{CreateUserPayload,UpdateUserPayload,User,
+        AdminPayload,Admin}
 }; // 引入底层的基础设施和连接池
 
 use serde::{Serialize, Deserialize};
+use bcrypt::{hash,DEFAULT_COST,verify, BcryptError};
+
+
 #[derive(Serialize)]
 pub struct ApiResponse<T> {
     code: u16,        // 状态码，如 200, 404, 500
@@ -141,11 +145,53 @@ pub struct LoginResponse {
     pub token: String,
 }
 
-pub async fn login_handler() -> (StatusCode, Json<LoginResponse>) {
-    let response = LoginResponse {
-        message: "登录成功".to_string(),
-        token: "mock-jwt-token-12345".to_string(),
-    };
-tracing::debug!("login_handler");
-    (StatusCode::OK, Json(response))
+pub async fn login_handler(
+    State(state): State<AppState>,
+    Json(payload): Json<AdminPayload>,
+) -> Result<(StatusCode, Json<Admin>), impl IntoResponse> {
+
+    //let hashed = hash("123456", DEFAULT_COST).unwrap();
+    //println!("新哈希: {}", hashed);
+
+    let admin_result = db::find_user_for_login(&state.db_pool, &payload.username).await;
+    
+    match admin_result {
+        Ok(admin) => {
+            let is_valid = match bcrypt::verify(&payload.password, &admin.password_hash) {
+                Ok(valid) => valid,
+                Err(e) => {
+                    tracing::debug!("Bcrypt error: {:?}", e);
+                    return Err((
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        "Internal server error".to_string(),
+                    ).into_response());
+                }
+            };
+
+            if !is_valid {
+                tracing::debug!("密码验证失败");
+                return Err((
+                    StatusCode::UNAUTHORIZED,
+                    "Invalid username or password".to_string(),
+                ).into_response());
+            }
+
+            // ✅ 登录成功返回 200 OK
+            Ok((StatusCode::OK, Json(admin)))
+        }
+        Err(db::DbError::NotFound) => {
+            // ✅ 用户不存在也返回 401，和密码错误保持一致
+            Err((
+                StatusCode::UNAUTHORIZED,
+                "Invalid username or password".to_string(),
+            ).into_response())
+        },
+        Err(e) => {
+            eprintln!("Database error during login: {:?}", e);
+            Err((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Failed to process login".to_string(),
+            ).into_response())
+        }
+    }
 }

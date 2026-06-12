@@ -17,3 +17,4 @@ tracing-subscriber = { workspace = true }
 anyhow = { workspace = true }
 dotenvy = { workspace = true }
 bcrypt = { workspace = true }
+jsonwebtoken = { workspace = true }

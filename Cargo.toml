@@ -26,3 +26,4 @@ sqlx = { version = "0.8", features = ["runtime-tokio-native-tls", "postgres", "m
 anyhow = "1.0"
 dotenvy = "0.15"
 bcrypt = "0.19.1"
+jsonwebtoken = { version = "10", features = ["aws_lc_rs"] }

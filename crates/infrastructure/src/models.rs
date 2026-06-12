@@ -31,3 +31,50 @@ pub struct Todo {
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>, 
 }
+
+
+
+#[derive(Debug, Deserialize)]
+pub struct AdminPayload {
+    pub username: String,
+    pub password: String,
+}
+
+#[derive(Debug, FromRow, Serialize, Deserialize)]
+pub struct Admin {
+    pub id: i32,
+    pub username: String,
+    pub email:  Option<String>,
+    pub password_hash: String,
+    pub role:  Option<String>,
+    pub created_at: DateTime<chrono::Utc>,
+    pub updated_at: DateTime<chrono::Utc>,
+}
+
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct Claims {
+    sub: String,
+    company: String,
+    exp: usize,
+}
+
+#[derive(Debug, Serialize)]
+struct AuthBody {
+    access_token: String,
+    token_type: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct AuthPayload {
+    client_id: String,
+    client_secret: String,
+}
+
+#[derive(Debug)]
+enum AuthError {
+    WrongCredentials,
+    MissingCredentials,
+    TokenCreation,
+    InvalidToken,
+}
