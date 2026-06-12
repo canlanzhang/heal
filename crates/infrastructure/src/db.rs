@@ -1,9 +1,7 @@
 
 use crate::entity::{Admin,User};
 use crate::dto::{
-    CreateAdminPayload,
-    CreateUserPayload,
-    UpdateUserPayload,
+    AdminPayload, CreateAdminPayload, CreateUserPayload, UpdateUserPayload
 };
 use crate::errors::DbError;
 use sqlx::postgres::{PgPool, PgPoolOptions};
@@ -29,7 +27,7 @@ pub async fn create_pool() ->  Result<PgPool, DbError> {
     Ok(pool)
 }
 
-pub async fn create_admin(pool: &PgPool, admin:Admin) -> Result<Admin, DbError> {
+pub async fn create_admin(pool: &PgPool, payload:&CreateAdminPayload) -> Result<Admin, DbError> {
     let admin = sqlx::query_as!(
         Admin,
         r#"
@@ -47,10 +45,10 @@ pub async fn create_admin(pool: &PgPool, admin:Admin) -> Result<Admin, DbError> 
             role
 
         "#,
-        admin.username,
-        admin.email,
-        admin.password_hash,
-        admin.role
+        payload.username,
+        payload.email,
+        payload.password,
+        payload.role
     )
     .fetch_one(pool)
     .await

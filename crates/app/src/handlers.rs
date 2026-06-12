@@ -25,29 +25,20 @@ use infrastructure::{
 
 use serde::{Serialize, Deserialize};
 use bcrypt::{hash,DEFAULT_COST,verify, BcryptError};
-use chrono::Utc;
 
 
 
 // POST /admins
 pub async fn handler_create_admin(
     State(state): State<AppState>,
-    Json(payload): Json<CreateAdminPayload>,
+    Json(mut payload): Json<CreateAdminPayload>,
 ) -> Result<Json<ApiResponse<Admin>>, DbError> {
      // 1. 密码加密 (关键步骤)
-    let hashed_password  = hash(&payload.password, DEFAULT_COST)
+    payload.password  = hash(&payload.password, DEFAULT_COST)
         .map_err(|_|DbError::Internal("Password hashing failed".to_string()))?;
-    //let admin = db::create_admin(&state.db_pool, payload).await?;
-    let new_admin = Admin {
-        id: 0, // 数据库自增
-        username: payload.username,
-        email: payload.email,
-        password_hash: hashed_password, // ✅ 存入的是加密后的字符串
-        role: payload.role,
+    let admin = db::create_admin(&state.db_pool, &payload).await?;
 
-    };
-
-    let admin = db::create_admin(&state.db_pool, new_admin).await?;
+    //let admin = db::create_admin(&state.db_pool, new_admin).await?;
     Ok(Json(ApiResponse::success(admin)))
 }
 

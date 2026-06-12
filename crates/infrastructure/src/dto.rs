@@ -2,6 +2,7 @@
 use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Duration, Utc}; 
 use jsonwebtoken::{encode, EncodingKey, Header};
+use validator::Validate;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claims {
     pub sub: String,
@@ -64,9 +65,11 @@ pub struct LoginResponse {
 }
 
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Validate)]
 pub struct CreateAdminPayload {
+    #[validate(length(min = 3, max= 16))]
     pub username: String,
+    #[validate(email)]
     pub email: Option<String>,
     pub password: String,
     pub role: Option<String>,

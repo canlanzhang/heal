@@ -10,3 +10,4 @@ serde = {workspace = true }
 chrono = {workspace = true }
 thiserror = {workspace =true }
 jsonwebtoken = {workspace =true }
+validator = {workspace =true }
