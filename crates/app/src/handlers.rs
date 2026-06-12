@@ -8,7 +8,10 @@ use axum::{
 use crate::state::AppState; 
 use infrastructure::{
     db, dto::{
-        AdminPayload, ApiResponse, Claims, CreateAdminPayload, CreateUserPayload, UpdateUserPayload
+        Claims,
+        ApiResponse,
+        LoginResponse,AdminPayload,
+        CreateAdminPayload, CreateUserPayload, UpdateUserPayload
 
     }, entity::{
         Admin,User,
@@ -31,12 +34,8 @@ pub async fn handler_create_admin(
     Ok(Json(ApiResponse::success(admin)))
 }
 
-// 定义登录成功的响应结构
-#[derive(Serialize)]
-pub struct LoginResponse {
-    pub token: String,
-    pub username: String,
-}
+
+
 
 pub async fn login_handler(
     State(state): State<AppState>,

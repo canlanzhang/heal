@@ -56,6 +56,14 @@ where
     }
 }
 
+
+#[derive(Serialize)]
+pub struct LoginResponse {
+    pub token: String,
+    pub username: String,
+}
+
+
 #[derive(Deserialize)]
 pub struct CreateAdminPayload {
     pub username: String,
