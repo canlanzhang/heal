@@ -8,9 +8,13 @@ use axum::{
 use crate::state::AppState; 
 use infrastructure::{
     db,
-    models::{CreateUserPayload,UpdateUserPayload,User,
-        AdminPayload,Admin,
-        Claims,
+    entity::{
+        Admin,User,
+
+    },
+    dto::{
+        CreateUserPayload,UpdateUserPayload,AdminPayload,Claims
+
     }
 }; // 引入底层的基础设施和连接池
 

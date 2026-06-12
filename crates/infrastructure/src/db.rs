@@ -1,6 +1,6 @@
 
-use crate::models::{CreateUserPayload,UpdateUserPayload,User,Admin};
-
+use crate::entity::{Admin,User};
+use crate::dto::{CreateUserPayload,UpdateUserPayload};
 use sqlx::postgres::{PgPool, PgPoolOptions};
 use std::time::Duration;
 use thiserror::Error;
@@ -10,7 +10,7 @@ pub enum DbError {
     #[error("User not found")]
     NotFound,
     #[error("Database error: {0}")]
-    Sql(#[from] sqlx::Error),
+    Sql(#[from] sqlx::Error)
 }
 
 
@@ -28,8 +28,7 @@ pub async fn create_pool() ->  Result<PgPool, sqlx::Error> {
         // 4. 空闲连接回收时间（释放长期不用的连接，节约省数据库资源）
         .idle_timeout(Duration::from_secs(600)) 
         .connect(&database_url )
-        .await
-        .expect("Failed to create configured PostgreSQL pool");
+        .await?;
 
     Ok(pool)
 }
@@ -72,17 +71,17 @@ pub async fn delete_user(pool: &PgPool, user_id: i32) -> Result<(), DbError> {
 }
 
 pub async fn update_user(
-    pool: &PgPool, 
-    user_id: i32, 
-    payload: UpdateUserPayload // 假设这是一个包含 Option<String> username 的结构体
+    pool: &PgPool,
+    user_id: i32,
+    payload: UpdateUserPayload,
 ) -> Result<User, DbError> {
     let user = sqlx::query_as!(
         User,
         r#"
         UPDATE users
         SET 
-            username = COALESCE($1, username), -- 如果传入为 NULL，则保持原值不变
-            updated_at = NOW()                 -- 强制更新时间戳
+            username = COALESCE($1, username),
+            updated_at = NOW()
         WHERE id = $2
         RETURNING
             id,
@@ -90,10 +89,30 @@ pub async fn update_user(
             created_at AS "created_at!",
             updated_at AS "updated_at!"
         "#,
-        payload.username, // 注意：这里需要是 Option<String> 类型
+        payload.username,
         user_id
     )
-    .fetch_optional(pool) // 使用 fetch_optional 防止 ID 不存在时报错
+    .fetch_optional(pool)
+    .await?;
+
+    user.ok_or(DbError::NotFound) // ✅ 更简洁的写法
+}
+
+pub async fn get_user_by_id(pool: &PgPool, user_id: i32) -> Result<User, DbError> {
+    let user = sqlx::query_as!(
+        User,
+        r#"
+        SELECT
+            id,
+            username,
+            created_at as "created_at!",
+            updated_at as "updated_at!"
+        FROM users
+        WHERE id = $1
+        "#,
+        user_id
+    )
+    .fetch_optional(pool)
     .await?;
 
     match user {
@@ -101,20 +120,6 @@ pub async fn update_user(
         None => Err(DbError::NotFound),
     }
 }
-
-// 编写查询接口
-pub async fn get_user_by_id(pool: &PgPool, user_id: i32) -> Result<User, DbError> {
-    let user = sqlx::query_as::<_, User>("SELECT id, username, created_at, updated_at FROM users WHERE id = $1")
-        .bind(user_id)
-        .fetch_optional(pool)
-        .await?;
-
-    match user {
-        Some(u) => Ok(u),
-        None => Err(DbError::NotFound),
-    }
-}
-
 
 
 

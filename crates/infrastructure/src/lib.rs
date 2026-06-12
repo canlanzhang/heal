@@ -1,6 +1,8 @@
 
+
 pub mod db;
-pub mod models;
+pub mod entity;
+pub mod dto;
 pub use sqlx::PgPool;
 
 
