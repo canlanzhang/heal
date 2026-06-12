@@ -8,8 +8,8 @@ pub struct Admin {
     pub email: Option<String>,
     pub password_hash: String,
     pub role: Option<String>,
-    pub created_at: DateTime<chrono::Utc>,
-    pub updated_at: DateTime<chrono::Utc>,
+    //pub created_at: DateTime<chrono::Utc>,
+    //pub updated_at: DateTime<chrono::Utc>,
 }
 
 #[derive(Debug, FromRow, Serialize, Deserialize)]

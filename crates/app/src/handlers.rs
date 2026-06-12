@@ -44,8 +44,7 @@ pub async fn handler_create_admin(
         email: payload.email,
         password_hash: hashed_password, // ✅ 存入的是加密后的字符串
         role: payload.role,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
+
     };
 
     let admin = db::create_admin(&state.db_pool, new_admin).await?;
@@ -63,11 +62,19 @@ pub async fn login_handler(
     // 1. 查用户
     let admin = db::find_user_for_login(&state.db_pool, &payload.username).await?;
     // 2. 验证密码
-    bcrypt::verify(&payload.password, &admin.password_hash)
-        .map_err(|_| DbError::Unauthorized)?;
+    let is_valid = bcrypt::verify(&payload.password, &admin.password_hash)
+        .map_err(|_| DbError::Internal("Password verification failed".to_string()))?;
+    
+
+    if !is_valid {
+        //tracing::debug!("login_handler: {}",is_valid);
+        return Err(DbError::Unauthorized);
+    }
+
     // 3. 生成 token
     let token = Claims::generate_token(&admin.id.to_string())
         .map_err(|_| DbError::TokenError)?;
+
     // 4. 返回成功响应
     let response = LoginResponse {
         token,

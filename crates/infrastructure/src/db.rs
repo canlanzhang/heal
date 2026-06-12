@@ -44,9 +44,8 @@ pub async fn create_admin(pool: &PgPool, admin:Admin) -> Result<Admin, DbError> 
             username,
             email,
             password_hash,
-            role,
-            created_at as "created_at!",
-            updated_at as "updated_at!"
+            role
+
         "#,
         admin.username,
         admin.email,
@@ -69,9 +68,7 @@ pub async fn find_user_for_login(pool: &PgPool, username: &str) -> Result<Admin,
             username,
             email,
             password_hash,
-            role,
-            created_at as "created_at!",
-            updated_at as "updated_at!"
+            role
         FROM heal_admin
         WHERE username = $1
         "#,
