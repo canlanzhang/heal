@@ -15,7 +15,8 @@ use infrastructure::{
     dto::{
         CreateUserPayload,UpdateUserPayload,AdminPayload,Claims
 
-    }
+    },
+    errors::*,
 }; // 引入底层的基础设施和连接池
 
 use serde::{Serialize, Deserialize};
@@ -62,7 +63,7 @@ pub async fn create_user_handler(
     // 调用我们刚才写的 db 函数
     match db::create_user(&state.db_pool, payload).await {
         Ok(user) => Ok((StatusCode::CREATED, Json(user))), // 返回 201 Created
-        Err(db::DbError::NotFound) => {
+        Err(DbError::NotFound) => {
             // 理论上插入不会 NotFound，但为了健壮性可以保留匹配
             Err((StatusCode::INTERNAL_SERVER_ERROR, "Unexpected error".to_string()).into_response())
         },
@@ -83,7 +84,7 @@ pub async fn delete_user_handler(
     match db::delete_user(&state.db_pool, user_id).await {
         Ok(()) => Ok(StatusCode::NO_CONTENT), // 返回 204 No Content，表示删除成功且无需返回数据
         
-        Err(db::DbError::NotFound) => {
+        Err(DbError::NotFound) => {
             // 如果数据库没找到这个 ID，说明资源不存在
             Err((StatusCode::NOT_FOUND, "User not found".to_string()).into_response())
         },
@@ -106,7 +107,7 @@ pub async fn update_user_handler(
     match db::update_user(&state.db_pool, user_id, payload).await {
         Ok(user) => Ok((StatusCode::OK, Json(user))), // 返回 200 OK 及更新后的完整用户信息
         
-        Err(db::DbError::NotFound) => {
+        Err(DbError::NotFound) => {
             // 如果数据库没找到这个 ID，说明资源不存在
             Err((StatusCode::NOT_FOUND, "User not found".to_string()).into_response())
         },
@@ -122,26 +123,9 @@ pub async fn update_user_handler(
 pub async fn handle_get_user(
     Path(user_id): Path<i32>,
     State(state): State<AppState>,
-) ->  (StatusCode, Json<ApiResponse<User>>) {
-    match db::get_user_by_id(&state.db_pool, user_id).await {
-        Ok(user) => {
-            // 查询成功，返回 JSON 数据
-            tracing::debug!("找到用户: {:?}", user);
-            (StatusCode::OK, Json(ApiResponse::success(user)))
-
-        }
-        Err(db::DbError::NotFound) => {
-            (StatusCode::NOT_FOUND,Json(ApiResponse::error(404, "用户不存在".to_string())))
-
-        }
-        
-        Err(e) => {
-            // 查询失败，处理错误            
-            tracing::debug!("数据库查询失败: {:?}", e);
-            (StatusCode::INTERNAL_SERVER_ERROR,Json(ApiResponse::error(500, format!("系统错误: {}", e))))
-
-        }
-    }
+) -> Result<Json<User>, DbError> {
+    let user = db::get_user_by_id(&state.db_pool, user_id).await?;
+    Ok(Json(user))
 }
 
 // 定义登录成功的响应结构
@@ -201,7 +185,7 @@ pub async fn login_handler(
             // ✅ 登录成功返回 200 OK
             Ok((StatusCode::OK, Json(response)))
         }
-        Err(db::DbError::NotFound) => {
+        Err(DbError::NotFound) => {
             // ✅ 用户不存在也返回 401，和密码错误保持一致
             Err((
                 StatusCode::UNAUTHORIZED,

@@ -1,20 +1,12 @@
 
 use crate::entity::{Admin,User};
 use crate::dto::{CreateUserPayload,UpdateUserPayload};
+use crate::errors::DbError;
 use sqlx::postgres::{PgPool, PgPoolOptions};
 use std::time::Duration;
 use thiserror::Error;
 
-#[derive(Error, Debug)]
-pub enum DbError {
-    #[error("User not found")]
-    NotFound,
-    #[error("Database error: {0}")]
-    Sql(#[from] sqlx::Error)
-}
-
-
-pub async fn create_pool() ->  Result<PgPool, sqlx::Error> {
+pub async fn create_pool() ->  Result<PgPool, DbError> {
     let database_url  = std::env::var("DATABASE_URL")
             .unwrap_or_else(|_| "postgres://dbuser:dbpass@localhost:5432/dioxusdb".to_string());
     // ⚡ 使用 PgPoolOptions 进行精细化配置
@@ -28,7 +20,8 @@ pub async fn create_pool() ->  Result<PgPool, sqlx::Error> {
         // 4. 空闲连接回收时间（释放长期不用的连接，节约省数据库资源）
         .idle_timeout(Duration::from_secs(600)) 
         .connect(&database_url )
-        .await?;
+        .await
+        .map_err(DbError::Sql)?;
 
     Ok(pool)
 }
