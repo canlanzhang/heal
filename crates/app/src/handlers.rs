@@ -9,10 +9,7 @@ use crate::state::AppState;
 use infrastructure::{
     db, 
     dto::{
-        Claims,
-        ApiResponse,
-        LoginResponse,AdminPayload,
-        CreateAdminPayload, CreateUserPayload, UpdateUserPayload
+        AdminPayload, ApiResponse, Claims, CreateAdminPayload, CreateUserPayload, LoginResponse, UpdateUserPayload, ValidatedJson
 
     }, 
     entity::{
@@ -32,7 +29,7 @@ use bcrypt::{hash,DEFAULT_COST,verify, BcryptError};
 pub async fn handler_create_admin(
     _claims: Claims,
     State(state): State<AppState>,
-    Json(mut payload): Json<CreateAdminPayload>,
+    ValidatedJson(mut payload): ValidatedJson<CreateAdminPayload>,
 ) -> Result<Json<ApiResponse<Admin>>, DbError> {
      // 1. 密码加密 (关键步骤)
     payload.password  = hash(&payload.password, DEFAULT_COST)
