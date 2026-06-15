@@ -1,16 +1,36 @@
-import { createRouter, createWebHistory } from 'vue-router'
-// 引入刚才创建的登录组件
-import Login from '../components/Login.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import { useUserStore } from '@/store/user';
+const routes = [
+  {
+    path: '/login',
+    component: () => import('@/views/Login.vue')
+  },
+  {
+    path: '/',
+    component: () => import('@/layout/BasicLayout.vue'),
+    children: [
+      {
+        path: 'home',
+        name: 'home',
+        component: () => import('@/views/Home.vue')
+      }
+    ]
+  }
+];
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/', // 访问根目录时
-      name: 'login',
-      component: Login // 显示 Login 组件
-    }
-  ]
-})
+  history: createWebHistory(),
+  routes
+});
 
-export default router
+router.beforeEach((to, from, next) => {
+  const userStore = useUserStore();
+
+  if (to.path !== '/login' && !userStore.token) {
+    next('/login');
+  } else {
+    next();
+  }
+});
+
+export default router;

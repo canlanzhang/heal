@@ -4,6 +4,7 @@ use crate::state::AppState;
 use crate::handlers::{
     handler_create_admin,handler_patch_admin,handler_delete_admin,
     login_handler,
+    handler_admin_info,
     handler_create_user, handler_delete_user, handler_patch_user, handle_get_user};
 use tower_http::cors::CorsLayer;
 async fn health_check() -> &'static str {
@@ -17,6 +18,7 @@ pub fn get_router(state: AppState) -> Router {
         .route("/api/admins/{id}", patch(handler_patch_admin))   // 🛠️ 绑定 PATCH 局部更新
         .route("/api/admins/{id}", delete(handler_delete_admin)) // 🛠️ 绑定 DELETE 删除
        
+       .route("/api/admin/info", get(handler_admin_info))
         
         .route("/api/health", get(health_check))
         .route("/api/users", post(handler_create_user))
