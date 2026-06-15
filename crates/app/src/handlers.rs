@@ -37,47 +37,17 @@ use infrastructure::dto::*;
 use serde::{Serialize, Deserialize};
 use bcrypt::{hash,DEFAULT_COST,verify, BcryptError};
 //use infrastructure::service::login;
-
+use infrastructure::service;
+use infrastructure::service::admin_service;
 pub async fn handler_admin_info(
     claims: Claims,
     State(state): State<AppState>,
 ) -> Result<Json<ApiResponse<AdminProfileResponse>>, DbError> {
 
-    // 1. 从 JWT 拿 admin_id
-    let admin_id = claims.sub;
-
-    // 2. 查 admin
-    let admin = db::get_admin_by_id(&state.db_pool, admin_id).await?;
-
-    // 3. 组装 admin info
-    let admin_info = AdminInfo {
-        id: admin.id,
-        username: admin.username.clone(),
-        email: admin.email.clone(),
-        role: admin.role.clone(),
-    };
-
-    // 4. 菜单（先写死，后面可改 RBAC）
-    let menus = vec![
-        MenuItem {
-            name: "home".to_string(),
-            path: "/home".to_string(),
-            title: "首页".to_string(),
-            icon: "Home".to_string(),
-        },
-        MenuItem {
-            name: "user".to_string(),
-            path: "/user".to_string(),
-            title: "用户管理".to_string(),
-            icon: "User".to_string(),
-        },
-    ];
-
-    // 5. 返回结构
-    let data = AdminProfileResponse {
-        admin: admin_info,
-        menus,
-    };
+    let data = admin_service::get_admin_profile(
+        &state.db_pool,
+        claims.sub,
+    ).await?;
 
     Ok(Json(ApiResponse::success(data)))
 }
@@ -133,31 +103,9 @@ pub async fn login_handler(
     Json(payload): Json<LoginRequest>,
 ) -> Result<Json<ApiResponse<LoginResponse>>,DbError> {
 
-    // 1. 查用户
-    let admin = db::query_admin_for_login(&state.db_pool, &payload.username).await?;
-    // 2. 验证密码
-    let is_valid = bcrypt::verify(&payload.password, &admin.password_hash)
-        .map_err(|_| DbError::Internal("Password verification failed".to_string()))?;
-    
+    let res = service::login(&state.db_pool, payload).await?;
 
-    if !is_valid {
-        //tracing::debug!("login_handler: {}",is_valid);
-        return Err(DbError::Unauthorized);
-    }
-
-    // 3. 生成 token
-    let token = Claims::generate_token(admin.id)
-        .map_err(|_| DbError::TokenError)?;
-
-    // 4. 返回成功响应
-    let response = LoginResponse {
-        token,
-        username: admin.username.clone(),
-    };
-
-     Ok(Json(ApiResponse::success(response)))
-
-
+    Ok(Json(ApiResponse::success(res)))
     
 }
 

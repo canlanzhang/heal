@@ -13,19 +13,26 @@ async fn health_check() -> &'static str {
 
 pub fn get_router(state: AppState) -> Router {
     Router::new()
-        .route("/api/admins", post(handler_create_admin))
-        .route("/api/login", post(login_handler))
-        .route("/api/admins/{id}", patch(handler_patch_admin))   // 🛠️ 绑定 PATCH 局部更新
-        .route("/api/admins/{id}", delete(handler_delete_admin)) // 🛠️ 绑定 DELETE 删除
-       
-       .route("/api/admin/info", get(handler_admin_info))
-        
+
+        // ================= AUTH =================
+        .route("/api/system/auth/login", post(login_handler))
+        .route("/api/system/auth/me", get(handler_admin_info))
+
+        // ================= ADMIN =================
+        .route("/api/system/admins", post(handler_create_admin))
+        .route("/api/system/admins/{id}", patch(handler_patch_admin))
+        .route("/api/system/admins/{id}", delete(handler_delete_admin))
+
+        // ================= USER (C端 / 小程序) =================
+        .route("/api/app/users", post(handler_create_user))
+        .route("/api/app/users/{id}", get(handle_get_user))
+        .route("/api/app/users/{id}", patch(handler_patch_user))
+        .route("/api/app/users/{id}", delete(handler_delete_user))
+
+        // ================= HEALTH =================
         .route("/api/health", get(health_check))
-        .route("/api/users", post(handler_create_user))
-        .route("/api/users/{id}", delete(handler_delete_user))
-        .route("/api/users/{id}", patch(handler_patch_user))
-        .route("/api/users/{id}",get(handle_get_user))
+
         .layer(CorsLayer::permissive())
-        .with_state(state) // Axum 0.8 标准的状态注入方式
+        .with_state(state)
 }
 

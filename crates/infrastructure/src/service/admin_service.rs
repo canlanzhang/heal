@@ -1,0 +1,87 @@
+use sqlx::PgPool;
+
+use crate::db;
+use crate::dto::admin::{AdminProfileResponse, AdminInfo};
+use crate::dto::common::MenuItem;
+use crate::errors::DbError;
+
+pub async fn get_admin_profile(
+    pool: &PgPool,
+    admin_id: i32,
+) -> Result<AdminProfileResponse, DbError> {
+
+    let admin = db::get_admin_by_id(pool, admin_id).await?;
+
+    let info = AdminInfo {
+        id: admin.id,
+        username: admin.username,
+        email: admin.email,
+        role: admin.role,
+    };
+
+    let menus = vec![
+        MenuItem {
+            name: "home".into(),
+            path: "/home".into(),
+            title: "首页".into(),
+            icon: "Home".into(),
+        },
+        MenuItem {
+            name: "user".into(),
+            path: "/user".into(),
+            title: "用户管理".into(),
+            icon: "User".into(),
+        },
+    ];
+
+    Ok(AdminProfileResponse {
+        admin: info,
+        menus,
+    })
+}
+
+use bcrypt::{hash, DEFAULT_COST};
+
+use crate::dto::admin::CreateAdminPayload;
+use crate::dto::admin::UpdateAdminPayload;
+use crate::entity::Admin;
+
+
+pub async fn create_admin(
+    pool: &PgPool,
+    mut payload: CreateAdminPayload,
+) -> Result<Admin, DbError> {
+
+    payload.password = hash(&payload.password, DEFAULT_COST)
+        .map_err(|_| DbError::Internal("hash failed".into()))?;
+
+    db::create_admin(pool, &payload).await
+}
+
+
+
+pub async fn update_admin(
+    pool: &PgPool,
+    admin_id: i32,
+    mut payload: UpdateAdminPayload,
+) -> Result<Admin, DbError> {
+
+    if let Some(pwd) = payload.password {
+        payload.password = Some(
+            hash(&pwd, DEFAULT_COST)
+                .map_err(|_| DbError::Internal("hash failed".into()))?
+        );
+    }
+
+    db::update_admin(pool, admin_id, &payload).await
+}
+
+
+
+pub async fn delete_admin(
+    pool: &PgPool,
+    admin_id: i32,
+) -> Result<(), DbError> {
+
+    db::delete_admin(pool, admin_id).await
+}
