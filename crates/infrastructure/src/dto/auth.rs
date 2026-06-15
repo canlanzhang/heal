@@ -1,17 +1,13 @@
 use axum::{
-    extract::{FromRequest,FromRequestParts},
+    extract::{FromRequestParts},
     http::request::Parts,
-    http::Request,
-    body::Body,
 };
 
 use serde::{Serialize, Deserialize};
-use serde::de::DeserializeOwned;
-use chrono::{DateTime, Duration, Utc}; 
+use chrono::{ Duration, Utc}; 
 use jsonwebtoken::{encode, decode, 
     EncodingKey, DecodingKey, Header, Validation, Algorithm};
-use validator::Validate;
-use crate::errors::{DbError,AuthError};
+use crate::errors::{AuthError};
 
 
 #[derive(Debug, Deserialize)]

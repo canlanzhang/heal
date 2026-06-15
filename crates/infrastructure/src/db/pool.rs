@@ -1,4 +1,3 @@
-use crate::entity::{Admin,User};
 use crate::errors::DbError;
 use sqlx::postgres::{PgPool, PgPoolOptions};
 use std::time::Duration;

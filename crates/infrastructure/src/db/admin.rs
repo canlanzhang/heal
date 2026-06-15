@@ -1,19 +1,12 @@
 
-use crate::entity::{Admin,User};
+use crate::entity::{Admin};
 use crate::dto::admin::{
     CreateAdminPayload,
     UpdateAdminPayload,
 };
 
-
-
-use crate::dto::user::{
-    CreateUserPayload,
-    UpdateUserPayload,
-};
 use crate::errors::DbError;
-use sqlx::postgres::{PgPool, PgPoolOptions};
-use std::time::Duration;
+use sqlx::postgres::{PgPool};
 
 
 pub async fn create_admin(
