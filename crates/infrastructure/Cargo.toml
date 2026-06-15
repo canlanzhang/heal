@@ -9,5 +9,6 @@ sqlx = { workspace = true }
 serde = {workspace = true }
 chrono = {workspace = true }
 thiserror = {workspace =true }
+bcrypt = { workspace = true }
 jsonwebtoken = {workspace =true }
 validator = {workspace =true }
