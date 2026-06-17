@@ -1,32 +1,23 @@
 import request from '@/utils/request';
 
-// token拦截
-
-
-export interface Article {
-  id: number;
-  title: string;
-  content: string;
-  status: string;
-  author_id?: number;
-}
+//import request from './request'
 
 export const getArticleList = () => {
-  return request.get('/articles');
-};
+  return request.get('/system/articles')
+}
 
 export const getArticleById = (id: number) => {
-  return request.get(`/articles/${id}`);
-};
+  return request.get(`/system/articles/${id}`)
+}
 
 export const createArticle = (data: any) => {
-  return request.post('/articles', data);
-};
+  return request.post('/system/articles', data)
+}
 
 export const updateArticle = (id: number, data: any) => {
-  return request.patch(`/articles/${id}`, data);
-};
+  return request.put(`/system/articles/${id}`, data)
+}
 
 export const deleteArticle = (id: number) => {
-  return request.delete(`/articles/${id}`);
-};
+  return request.delete(`/system/articles/${id}`)
+}

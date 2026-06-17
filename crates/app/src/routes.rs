@@ -17,7 +17,7 @@ pub fn get_router(state: AppState) -> Router {
 
         // ================= AUTH =================
         .route("/api/system/auth/login", post(login_handler))
-        .route("/api/system/auth/me", get(handler_admin_info))
+        .route("/api/system/auth/profile", get(handler_admin_info))
 
         // ================= ADMIN =================
         .route("/api/system/admins", get(handler_list_admins))
@@ -25,11 +25,11 @@ pub fn get_router(state: AppState) -> Router {
         .route("/api/system/admins/{id}", patch(handler_patch_admin))
         .route("/api/system/admins/{id}", delete(handler_delete_admin))
         // ================= Article =================
-        .route("/api/articles", get(handler_list_articles))
-        .route("/api/articles/{id}", get(handler_get_article))
-        .route("/api/articles", post(handler_create_article))
-        .route("/api/articles/{id}", patch(handler_update_article))
-        .route("/api/articles/{id}", delete(handler_delete_article))
+        .route("/api/system/articles", get(handler_list_articles))
+        .route("/api/system/articles/{id}", get(handler_get_article))
+        .route("/api/system/articles", post(handler_create_article))
+        .route("/api/system/articles/{id}", patch(handler_update_article))
+        .route("/api/system/articles/{id}", delete(handler_delete_article))
 
         // ================= USER (C端 / 小程序) =================
         .route("/api/app/users", post(handler_create_user))

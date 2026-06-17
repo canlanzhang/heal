@@ -1,44 +1,50 @@
 <template>
-  <div class="layout">
+  <el-container class="layout">
 
-    <!-- 左侧菜单 -->
-    <Sidebar />
+    <!-- 左侧 -->
+    <el-aside width="220px" class="aside">
+      <Sidebar />
+    </el-aside>
 
-    <div class="main">
+    <!-- 右侧 -->
+    <el-container>
 
-      <!-- 顶部栏 -->
-      <Header />
+      <!-- 顶部 -->
+      <el-header class="header">
+        <Header />
+      </el-header>
 
-      <!-- 内容区 -->
-      <div class="content">
+      <!-- 内容 -->
+      <el-main class="main">
         <router-view />
-      </div>
+      </el-main>
 
-    </div>
-  </div>
+    </el-container>
+
+  </el-container>
 </template>
 
 <script setup lang="ts">
-import Sidebar from '@/components/layout/Sidebar.vue';
-import Header from '@/components/layout/Header.vue';
+import Sidebar from './Sidebar.vue'
+import Header from './Header.vue'
 </script>
 
 <style scoped>
 .layout {
-  display: flex;
   height: 100vh;
-  background: #f5f6f8;
+}
+
+.aside {
+  background: #001529;
+  color: #fff;
+}
+
+.header {
+  background: #fff;
+  border-bottom: 1px solid #eee;
 }
 
 .main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.content {
-  flex: 1;
-  padding: 16px;
-  overflow: auto;
+  background: #f5f6f8;
 }
 </style>

@@ -1,57 +1,54 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import { useUserStore } from '@/store/user';
+import { createRouter, createWebHistory } from 'vue-router'
+import { useUserStore } from '@/store/user'
+
 const routes = [
   {
     path: '/login',
-    component: () => import('@/views/Login.vue')
+    name: 'login',
+    component: () => import('@/views/login/index.vue')
   },
   {
     path: '/',
+    name: 'layout',   // ⭐关键
     component: () => import('@/layout/BasicLayout.vue'),
+    redirect: '/home',
     children: [
       {
         path: 'home',
         name: 'home',
-        component: () => import('@/views/Home.vue')
-      },
-      {
-        path: 'admin',
-        name: 'admin',
-        component: () => import('@/views/AdminList.vue')
-      },
-      {
-        path: 'article',
-        name: 'article',
-        component: () => import('@/views/article/List.vue')
-      },
-      {
-        path: 'article/edit',
-        name: 'article-create',
-        component: () => import('@/views/article/Edit.vue')
-      },
-      {
-        path: 'article/edit/:id',
-        name: 'article-edit',
-        component: () => import('@/views/article/Edit.vue')
+        component: () => import('@/views/home/index.vue')
       }
-      
+      // ⚠️ admin / article 可以后端动态加
     ]
   }
-];
+]
 
 const router = createRouter({
   history: createWebHistory(),
   routes
-});
+})
 
+/**
+ * 全局守卫
+ */
 router.beforeEach((to, from, next) => {
-  const userStore = useUserStore();
+  const store = useUserStore()
 
-  if (to.path !== '/login' && !userStore.token) {
-    next('/login');
-  } else {
-    next();
+  const token = store.token
+
+  // ❌ 未登录
+  if (to.path !== '/login' && !token) {
+    next('/login')
+    return
   }
-});
 
-export default router;
+  // ❌ 已登录不能回登录
+  if (to.path === '/login' && token) {
+    next('/home')
+    return
+  }
+
+  next()
+})
+
+export default router

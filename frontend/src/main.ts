@@ -1,11 +1,22 @@
-import { createApp } from 'vue';
-import { createPinia } from 'pinia';
-import App from './App.vue';
-import router from './router';
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
+import { createPinia } from 'pinia'
+import { useUserStore } from '@/store/user'
 
-const app = createApp(App);
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
 
-app.use(createPinia());
-app.use(router);
+const app = createApp(App)
 
-app.mount('#app');
+const pinia = createPinia()
+app.use(pinia)
+
+const store = useUserStore(pinia)
+
+// ⭐关键：刷新恢复登录态
+store.loadToken()
+
+app.use(router)
+app.use(ElementPlus)
+app.mount('#app')

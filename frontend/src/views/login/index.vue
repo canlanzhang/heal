@@ -67,6 +67,7 @@ const handleLogin = async () => {
     });
 
     const token = loginRes?.data?.token;
+console.dir(loginRes, { depth: null, colors: true });
 
     if (!token) {
       errorMsg.value = loginRes?.message || '登录失败';
