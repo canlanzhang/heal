@@ -1,9 +1,10 @@
 use sqlx::PgPool;
 
 use crate::db;
-use crate::dto::admin::{AdminProfileResponse, AdminInfo};
+use crate::dto::admin::{AdminListItem,AdminProfileResponse, AdminInfo};
 use crate::dto::common::MenuItem;
 use crate::errors::DbError;
+
 
 pub async fn get_admin_profile(
     pool: &PgPool,
@@ -27,6 +28,12 @@ pub async fn get_admin_profile(
             icon: "Home".into(),
         },
         MenuItem {
+            name: "admin".into(),
+            path: "/admin".into(),
+            title: "管理员管理".into(),
+            icon: "User".into(),
+        },
+        MenuItem {
             name: "user".into(),
             path: "/user".into(),
             title: "用户管理".into(),
@@ -46,6 +53,22 @@ use crate::dto::admin::CreateAdminPayload;
 use crate::dto::admin::UpdateAdminPayload;
 use crate::entity::Admin;
 
+
+pub async fn list_admins(
+    pool: &PgPool,
+) -> Result<Vec<AdminListItem>, DbError> {
+
+    let admins = db::admin::list_admins(pool).await?;
+
+    let result = admins.into_iter().map(|a| AdminListItem {
+        id: a.id,
+        username: a.username,
+        email: a.email,
+        role: a.role,
+    }).collect();
+
+    Ok(result)
+}
 
 pub async fn create_admin(
     pool: &PgPool,

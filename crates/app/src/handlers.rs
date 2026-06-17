@@ -52,6 +52,25 @@ pub async fn handler_admin_info(
     Ok(Json(ApiResponse::success(data)))
 }
 
+fn empty_to_none(v: Option<String>) -> Option<String> {
+    match v {
+        Some(s) if s.trim().is_empty() => None,
+        other => other,
+    }
+}
+
+// GET /admins
+pub async fn handler_list_admins(
+    _claims: Claims,
+    State(state): State<AppState>,
+) -> Result<Json<ApiResponse<Vec<AdminListItem>>>, DbError> {
+
+    let list = admin_service::list_admins(&state.db_pool).await?;
+
+    Ok(Json(ApiResponse::success(list)))
+}
+
+
 // POST /admins
 pub async fn handler_create_admin(
     _claims: Claims,
@@ -74,6 +93,12 @@ pub async fn handler_patch_admin(
     State(state): State<AppState>,
     ValidatedJson(mut payload): ValidatedJson<UpdateAdminPayload>, // 🛠️ 防弹衣：自动触发格式校验
 ) -> Result<Json<ApiResponse<Admin>>, DbError> {
+    let mut payload = UpdateAdminPayload {
+    username: empty_to_none(payload.username),
+    email: empty_to_none(payload.email),
+    password: empty_to_none(payload.password),
+    role: empty_to_none(payload.role),
+};
     
     // 如果前端传了新密码，必须先进行加密转换，否则不能直接入库！
     if let Some(plain_password) = payload.password {

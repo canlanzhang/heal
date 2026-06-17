@@ -8,6 +8,26 @@ use crate::dto::admin::{
 use crate::errors::DbError;
 use sqlx::postgres::{PgPool};
 
+pub async fn list_admins(pool: &PgPool) -> Result<Vec<Admin>, DbError> {
+    let admins = sqlx::query_as!(
+        Admin,
+        r#"
+        SELECT
+            id,
+            username,
+            email,
+            password_hash,
+            role
+        FROM heal_admin
+        ORDER BY id DESC
+        "#
+    )
+    .fetch_all(pool)
+    .await
+    .map_err(DbError::Sql)?;
+
+    Ok(admins)
+}
 
 pub async fn create_admin(
     pool: &PgPool,

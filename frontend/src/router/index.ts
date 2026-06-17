@@ -10,6 +10,11 @@ const routes = [
     component: () => import('@/layout/BasicLayout.vue'),
     children: [
       {
+        path: '/admin',
+        name: 'admin',
+        component: () => import('@/views/AdminList.vue')
+      },
+      {
         path: 'home',
         name: 'home',
         component: () => import('@/views/Home.vue')

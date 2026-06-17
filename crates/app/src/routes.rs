@@ -2,7 +2,7 @@
 use axum::{routing::{post, delete, patch, get}, Router};
 use crate::state::AppState;
 use crate::handlers::{
-    handler_create_admin,handler_patch_admin,handler_delete_admin,
+    handler_list_admins,handler_create_admin,handler_patch_admin,handler_delete_admin,
     login_handler,
     handler_admin_info,
     handler_create_user, handler_delete_user, handler_patch_user, handle_get_user};
@@ -19,6 +19,7 @@ pub fn get_router(state: AppState) -> Router {
         .route("/api/system/auth/me", get(handler_admin_info))
 
         // ================= ADMIN =================
+        .route("/api/system/admins", get(handler_list_admins))
         .route("/api/system/admins", post(handler_create_admin))
         .route("/api/system/admins/{id}", patch(handler_patch_admin))
         .route("/api/system/admins/{id}", delete(handler_delete_admin))

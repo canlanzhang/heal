@@ -4,6 +4,13 @@ use serde::{Serialize, Deserialize};
 use validator::Validate;
 use crate::dto::common::MenuItem;
 
+#[derive(Debug, Serialize)]
+pub struct AdminListItem {
+    pub id: i32,
+    pub username: String,
+    pub email: Option<String>,
+    pub role: Option<String>,
+}
 
 #[derive(Deserialize, Validate)]
 pub struct CreateAdminPayload {
