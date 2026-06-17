@@ -1,23 +1,26 @@
-import request from '@/utils/request';
+import request from '@/utils/request'
 
-//import request from './request'
-
+// 获取列表
 export const getArticleList = () => {
-  return request.get('/system/articles')
+  return request.get('/v1/articles')
 }
 
+// 详情
 export const getArticleById = (id: number) => {
-  return request.get(`/system/articles/${id}`)
+  return request.get(`/v1/articles/${id}`)
 }
 
+// 新增
 export const createArticle = (data: any) => {
-  return request.post('/system/articles', data)
+  return request.post('/v1/articles', data)
 }
 
+// 更新
 export const updateArticle = (id: number, data: any) => {
-  return request.put(`/system/articles/${id}`, data)
+  return request.patch(`/v1/articles/${id}`, data)
 }
 
+// 删除
 export const deleteArticle = (id: number) => {
-  return request.delete(`/system/articles/${id}`)
+  return request.delete(`/v1/articles/${id}`)
 }
