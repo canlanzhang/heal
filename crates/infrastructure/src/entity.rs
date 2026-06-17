@@ -13,6 +13,17 @@ pub struct Admin {
 }
 
 #[derive(Debug, FromRow, Serialize, Deserialize)]
+pub struct Article {
+    pub id: i32,
+    pub title: String,
+    pub content: String,
+    pub status: String,
+    pub author_id: Option<i32>,
+    pub created_at: chrono::NaiveDateTime,
+    pub updated_at: chrono::NaiveDateTime,
+}
+
+#[derive(Debug, FromRow, Serialize, Deserialize)]
 pub struct User {
     pub id: i32,
     pub username: String,

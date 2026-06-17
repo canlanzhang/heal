@@ -37,6 +37,15 @@ CREATE TABLE IF NOT EXISTS heal_admin (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE heal_article (
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'draft',
+    author_id INT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
 
 --- 下面是自动更新 updated_at 的“魔法”代码 ---
 /* 

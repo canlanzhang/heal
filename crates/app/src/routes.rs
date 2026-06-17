@@ -23,6 +23,9 @@ pub fn get_router(state: AppState) -> Router {
         .route("/api/system/admins", post(handler_create_admin))
         .route("/api/system/admins/{id}", patch(handler_patch_admin))
         .route("/api/system/admins/{id}", delete(handler_delete_admin))
+        // ================= ADMIN =================
+        .route("/api/articles", get(list_articles).post(create_article))
+        .route("/api/articles/:id", put(update_article).delete(delete_article))
 
         // ================= USER (C端 / 小程序) =================
         .route("/api/app/users", post(handler_create_user))
