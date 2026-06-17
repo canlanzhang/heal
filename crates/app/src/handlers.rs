@@ -40,13 +40,25 @@ use serde::{Serialize, Deserialize};
 use bcrypt::{hash,DEFAULT_COST,verify, BcryptError};
 //use infrastructure::service::login;
 use infrastructure::service;
-use infrastructure::service::admin_service;
-pub async fn handler_admin_info(
+use infrastructure::service::{admin_service,auth_service};
+
+pub async fn handler_login(
+    State(state): State<AppState>,
+    Json(payload): Json<LoginRequest>,
+) -> Result<Json<ApiResponse<LoginResponse>>,DbError> {
+
+    let res = service::login(&state.db_pool, payload).await?;
+
+    Ok(Json(ApiResponse::success(res)))
+    
+}
+
+pub async fn handler_profile(
     claims: Claims,
     State(state): State<AppState>,
 ) -> Result<Json<ApiResponse<AdminProfileResponse>>, DbError> {
 
-    let data = admin_service::get_admin_profile(
+    let data = auth_service::get_admin_profile(
         &state.db_pool,
         claims.sub,
     ).await?;
@@ -88,8 +100,24 @@ pub async fn handler_create_admin(
     Ok(Json(ApiResponse::success(admin)))
 }
 
+
+pub async fn handler_get_admin(
+    claims: Claims,
+    Path(admin_id): Path<i32>,
+    State(state): State<AppState>,
+) -> Result<Json<ApiResponse<AdminProfileResponse>>, DbError> {
+
+    let data = admin_service::get_admin(
+        &state.db_pool,
+        admin_id,
+    ).await?;
+
+    Ok(Json(ApiResponse::success(data)))
+}
+
+
 // PATCH /api/admins/:id
-pub async fn handler_patch_admin(
+pub async fn handler_update_admin(
     _claims: Claims, // 🛠️ 鉴权守卫：必须登录才能修改
     Path(admin_id): Path<i32>,
     State(state): State<AppState>,
@@ -125,16 +153,7 @@ pub async fn handler_delete_admin(
 
 
 
-pub async fn login_handler(
-    State(state): State<AppState>,
-    Json(payload): Json<LoginRequest>,
-) -> Result<Json<ApiResponse<LoginResponse>>,DbError> {
 
-    let res = service::login(&state.db_pool, payload).await?;
-
-    Ok(Json(ApiResponse::success(res)))
-    
-}
 
 
 

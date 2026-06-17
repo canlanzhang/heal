@@ -1,29 +1,26 @@
-import request from '@/utils/request';
+import request from '@/utils/request'
 
-/**
- * 获取管理员列表（带分页）
- */
-export const getAdminList = (params: any) => {
-  return request.get('/system/admins', { params });
-};
+// 获取列表
+export const getAdminList = () => {
+  return request.get('/v1/admins')
+}
 
-/**
- * 新增管理员
- */
+// 详情
+export const getAdminById = (id: number) => {
+  return request.get(`/v1/admins/${id}`)
+}
+
+// 新增
 export const createAdmin = (data: any) => {
-  return request.post('/system/admins', data);
-};
+  return request.post('/v1/admins', data)
+}
 
-/**
- * 更新管理员
- */
+// 更新
 export const updateAdmin = (id: number, data: any) => {
-  return request.patch(`/system/admins/${id}`, data);
-};
+  return request.patch(`/v1/admins/${id}`, data)
+}
 
-/**
- * 删除管理员
- */
+// 删除
 export const deleteAdmin = (id: number) => {
-  return request.delete(`/system/admins/${id}`);
-};
+  return request.delete(`/v1/admins/${id}`)
+}

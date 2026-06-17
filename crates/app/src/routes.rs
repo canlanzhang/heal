@@ -2,9 +2,8 @@
 use axum::{routing::{post, delete, patch, get}, Router};
 use crate::state::AppState;
 use crate::handlers::{
-    handler_list_admins,handler_create_admin,handler_patch_admin,handler_delete_admin,
-    login_handler,
-    handler_admin_info,
+    handler_list_admins,handler_create_admin,handler_get_admin,handler_update_admin,handler_delete_admin,
+    handler_login, handler_profile,
     handler_list_articles,handler_create_article,handler_update_article,handler_delete_article,handler_get_article,
     handler_create_user, handler_delete_user, handler_patch_user, handle_get_user};
 use tower_http::cors::CorsLayer;
@@ -16,20 +15,22 @@ pub fn get_router(state: AppState) -> Router {
     Router::new()
 
         // ================= AUTH =================
-        .route("/api/system/auth/login", post(login_handler))
-        .route("/api/system/auth/profile", get(handler_admin_info))
+        .route("/api/v1/auth/login", post(handler_login))
+        .route("/api/v1/auth/profile", get(handler_profile))
 
         // ================= ADMIN =================
-        .route("/api/system/admins", get(handler_list_admins))
-        .route("/api/system/admins", post(handler_create_admin))
-        .route("/api/system/admins/{id}", patch(handler_patch_admin))
-        .route("/api/system/admins/{id}", delete(handler_delete_admin))
+        .route("/api/v1/admins", get(handler_list_admins))
+        .route("/api/v1/admins", post(handler_create_admin))
+        .route("/api/v1/admins/{id}", get(handler_get_admin))
+        .route("/api/v1/admins/{id}", patch(handler_update_admin))
+        .route("/api/v1/admins/{id}", delete(handler_delete_admin))
+
         // ================= Article =================
-        .route("/api/system/articles", get(handler_list_articles))
-        .route("/api/system/articles/{id}", get(handler_get_article))
-        .route("/api/system/articles", post(handler_create_article))
-        .route("/api/system/articles/{id}", patch(handler_update_article))
-        .route("/api/system/articles/{id}", delete(handler_delete_article))
+        .route("/api/v1/articles", get(handler_list_articles))
+        .route("/api/v1/articles", post(handler_create_article))
+        .route("/api/v1/articles/{id}", get(handler_get_article))        
+        .route("/api/v1/articles/{id}", patch(handler_update_article))
+        .route("/api/v1/articles/{id}", delete(handler_delete_article))
 
         // ================= USER (C端 / 小程序) =================
         .route("/api/app/users", post(handler_create_user))

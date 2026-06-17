@@ -6,52 +6,7 @@ use crate::dto::common::MenuItem;
 use crate::errors::DbError;
 
 
-pub async fn get_admin_profile(
-    pool: &PgPool,
-    admin_id: i32,
-) -> Result<AdminProfileResponse, DbError> {
 
-    let admin = db::get_admin_by_id(pool, admin_id).await?;
-
-    let info = AdminInfo {
-        id: admin.id,
-        username: admin.username,
-        email: admin.email,
-        role: admin.role,
-    };
-
-    let menus = vec![
-        MenuItem {
-            name: "home".into(),
-            path: "/home".into(),
-            title: "首页".into(),
-            icon: "Home".into(),
-        },
-        MenuItem {
-            name: "admin".into(),
-            path: "/admin".into(),
-            title: "管理员管理".into(),
-            icon: "Admin".into(),
-        },
-        MenuItem {
-            name: "article".into(),
-            path: "/article".into(),
-            title: "内容管理".into(),
-            icon: "Article".into(),
-        },
-        MenuItem {
-            name: "user".into(),
-            path: "/user".into(),
-            title: "用户管理".into(),
-            icon: "User".into(),
-        },
-    ];
-
-    Ok(AdminProfileResponse {
-        admin: info,
-        menus,
-    })
-}
 
 use bcrypt::{hash, DEFAULT_COST};
 
@@ -113,4 +68,52 @@ pub async fn delete_admin(
 ) -> Result<(), DbError> {
 
     db::delete_admin(pool, admin_id).await
+}
+
+
+pub async fn get_admin(
+    pool: &PgPool,
+    admin_id: i32,
+) -> Result<AdminProfileResponse, DbError> {
+
+    let admin = db::get_admin_by_id(pool, admin_id).await?;
+
+    let info = AdminInfo {
+        id: admin.id,
+        username: admin.username,
+        email: admin.email,
+        role: admin.role,
+    };
+
+    let menus = vec![
+        MenuItem {
+            name: "home".into(),
+            path: "/home".into(),
+            title: "首页".into(),
+            icon: "Home".into(),
+        },
+        MenuItem {
+            name: "admin".into(),
+            path: "/admin".into(),
+            title: "管理员管理".into(),
+            icon: "Admin".into(),
+        },
+        MenuItem {
+            name: "article".into(),
+            path: "/article".into(),
+            title: "内容管理".into(),
+            icon: "Article".into(),
+        },
+        MenuItem {
+            name: "user".into(),
+            path: "/user".into(),
+            title: "用户管理".into(),
+            icon: "User".into(),
+        },
+    ];
+
+    Ok(AdminProfileResponse {
+        admin: info,
+        menus,
+    })
 }

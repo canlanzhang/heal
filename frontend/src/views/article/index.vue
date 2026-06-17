@@ -30,7 +30,7 @@ const list = ref<any[]>([])
 
 const loadData = async () => {
   const res = await getArticleList()
-  list.value = res.data.data || []
+  list.value = res.data || []
 }
 
 onMounted(loadData)
