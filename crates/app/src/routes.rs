@@ -5,6 +5,7 @@ use crate::handlers::{
     handler_list_admins,handler_create_admin,handler_patch_admin,handler_delete_admin,
     login_handler,
     handler_admin_info,
+    handler_list_articles,handler_create_article,handler_update_article,handler_delete_article,handler_get_article,
     handler_create_user, handler_delete_user, handler_patch_user, handle_get_user};
 use tower_http::cors::CorsLayer;
 async fn health_check() -> &'static str {
@@ -23,9 +24,12 @@ pub fn get_router(state: AppState) -> Router {
         .route("/api/system/admins", post(handler_create_admin))
         .route("/api/system/admins/{id}", patch(handler_patch_admin))
         .route("/api/system/admins/{id}", delete(handler_delete_admin))
-        // ================= ADMIN =================
-        .route("/api/articles", get(list_articles).post(create_article))
-        .route("/api/articles/:id", put(update_article).delete(delete_article))
+        // ================= Article =================
+        .route("/api/articles", get(handler_list_articles))
+        .route("/api/articles/{id}", get(handler_get_article))
+        .route("/api/articles", post(handler_create_article))
+        .route("/api/articles/{id}", patch(handler_update_article))
+        .route("/api/articles/{id}", delete(handler_delete_article))
 
         // ================= USER (C端 / 小程序) =================
         .route("/api/app/users", post(handler_create_user))

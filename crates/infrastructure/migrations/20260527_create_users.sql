@@ -43,8 +43,8 @@ CREATE TABLE heal_article (
     content TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'draft',
     author_id INT,
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 --- 下面是自动更新 updated_at 的“魔法”代码 ---

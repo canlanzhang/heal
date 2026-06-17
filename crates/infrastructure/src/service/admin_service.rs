@@ -31,7 +31,13 @@ pub async fn get_admin_profile(
             name: "admin".into(),
             path: "/admin".into(),
             title: "管理员管理".into(),
-            icon: "User".into(),
+            icon: "Admin".into(),
+        },
+        MenuItem {
+            name: "article".into(),
+            path: "/article".into(),
+            title: "内容管理".into(),
+            icon: "Article".into(),
         },
         MenuItem {
             name: "user".into(),

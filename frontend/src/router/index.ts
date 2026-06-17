@@ -10,15 +10,31 @@ const routes = [
     component: () => import('@/layout/BasicLayout.vue'),
     children: [
       {
-        path: '/admin',
+        path: 'home',
+        name: 'home',
+        component: () => import('@/views/Home.vue')
+      },
+      {
+        path: 'admin',
         name: 'admin',
         component: () => import('@/views/AdminList.vue')
       },
       {
-        path: 'home',
-        name: 'home',
-        component: () => import('@/views/Home.vue')
+        path: 'article',
+        name: 'article',
+        component: () => import('@/views/article/List.vue')
+      },
+      {
+        path: 'article/edit',
+        name: 'article-create',
+        component: () => import('@/views/article/Edit.vue')
+      },
+      {
+        path: 'article/edit/:id',
+        name: 'article-edit',
+        component: () => import('@/views/article/Edit.vue')
       }
+      
     ]
   }
 ];

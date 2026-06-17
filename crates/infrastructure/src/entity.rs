@@ -19,8 +19,8 @@ pub struct Article {
     pub content: String,
     pub status: String,
     pub author_id: Option<i32>,
-    pub created_at: chrono::NaiveDateTime,
-    pub updated_at: chrono::NaiveDateTime,
+    //pub created_at: chrono::NaiveDateTime,
+    //pub updated_at: chrono::NaiveDateTime,
 }
 
 #[derive(Debug, FromRow, Serialize, Deserialize)]
