@@ -66,12 +66,7 @@ pub async fn handler_profile(
     Ok(Json(ApiResponse::success(data)))
 }
 
-fn empty_to_none(v: Option<String>) -> Option<String> {
-    match v {
-        Some(s) if s.trim().is_empty() => None,
-        other => other,
-    }
-}
+
 
 // GET /admins
 pub async fn handler_list_admins(
@@ -89,14 +84,14 @@ pub async fn handler_list_admins(
 pub async fn handler_create_admin(
     _claims: Claims,
     State(state): State<AppState>,
-    ValidatedJson(mut payload): ValidatedJson<CreateAdminPayload>,
+    ValidatedJson(payload): ValidatedJson<CreateAdminPayload>,
 ) -> Result<Json<ApiResponse<Admin>>, DbError> {
-     // 1. 密码加密 (关键步骤)
-    payload.password  = hash(&payload.password, DEFAULT_COST)
-        .map_err(|_|DbError::Internal("Password hashing failed".to_string()))?;
-    let admin = db::create_admin(&state.db_pool, &payload).await?;
 
-    //let admin = db::create_admin(&state.db_pool, new_admin).await?;
+    let admin = service::create_admin(
+        &state.db_pool, 
+        payload
+    ).await?;
+
     Ok(Json(ApiResponse::success(admin)))
 }
 
@@ -121,23 +116,14 @@ pub async fn handler_update_admin(
     _claims: Claims, // 🛠️ 鉴权守卫：必须登录才能修改
     Path(admin_id): Path<i32>,
     State(state): State<AppState>,
-    ValidatedJson(mut payload): ValidatedJson<UpdateAdminPayload>, // 🛠️ 防弹衣：自动触发格式校验
+    ValidatedJson(payload): ValidatedJson<UpdateAdminPayload>, // 🛠️ 防弹衣：自动触发格式校验
 ) -> Result<Json<ApiResponse<Admin>>, DbError> {
-    let mut payload = UpdateAdminPayload {
-    username: empty_to_none(payload.username),
-    email: empty_to_none(payload.email),
-    password: empty_to_none(payload.password),
-    role: empty_to_none(payload.role),
-};
-    
-    // 如果前端传了新密码，必须先进行加密转换，否则不能直接入库！
-    if let Some(plain_password) = payload.password {
-        let hashed = hash(&plain_password, DEFAULT_COST)
-            .map_err(|_| DbError::Internal("Password hashing failed".to_string()))?;
-        payload.password = Some(hashed);
-    }
 
-    let admin = db::update_admin(&state.db_pool, admin_id, &payload).await?;
+    let admin = service::update_admin(
+            &state.db_pool, 
+            admin_id, payload
+        ).await?;
+
     Ok(Json(ApiResponse::success(admin)))
 }
 
@@ -147,7 +133,9 @@ pub async fn handler_delete_admin(
     Path(admin_id): Path<i32>,
     State(state): State<AppState>,
 ) -> Result<Json<ApiResponse<()>>, DbError> {
-    db::delete_admin(&state.db_pool, admin_id).await?;
+
+    service::delete_admin(&state.db_pool, admin_id).await?;
+
     Ok(Json(ApiResponse::success(())))
 }
 
@@ -161,7 +149,8 @@ pub async fn handler_list_articles(
     _claims: Claims, // 🛠️ 鉴权守卫：必须登录才能删除
     State(state): State<AppState>,
 ) -> Result<Json<ApiResponse<Vec<Article>>>, DbError> {
-    let articles = db::list_articles(&state.db_pool).await?;
+    
+    let articles = service::list_articles(&state.db_pool).await?;
 
     Ok(Json(ApiResponse::success(articles)))
 }
@@ -216,11 +205,13 @@ pub async fn handler_get_article(
 
 
 // GET /users/:id
-pub async fn handle_get_user(
+pub async fn handler_get_user(
     Path(user_id): Path<i32>,
     State(state): State<AppState>,
 ) -> Result<Json<ApiResponse<User>>, DbError> {
+
     let user = db::get_user_by_id(&state.db_pool, user_id).await?;
+
     Ok(Json(ApiResponse::success(user)))
 }
 

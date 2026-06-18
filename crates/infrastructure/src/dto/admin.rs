@@ -3,6 +3,7 @@ use serde::{Serialize, Deserialize};
 
 use validator::Validate;
 use crate::dto::common::MenuItem;
+use crate::dto::utils::empty_string_as_none;
 
 #[derive(Debug, Serialize)]
 pub struct AdminListItem {
@@ -24,18 +25,23 @@ pub struct CreateAdminPayload {
 
 #[derive(Debug, Deserialize, validator::Validate)]
 pub struct UpdateAdminPayload {
-    // 允许局部更新：传了就改，没传就保持原样
+
+    #[serde(default, deserialize_with = "empty_string_as_none")]
     #[validate(length(min = 3, max = 16))]
     pub username: Option<String>,
-    
-    #[validate(email)]
+
+    #[serde(default, deserialize_with = "empty_string_as_none")]
     pub email: Option<String>,
-    
-    // 如果传了新密码，需要支持局部修改
+
+    #[serde(default, deserialize_with = "empty_string_as_none")]
     pub password: Option<String>,
-    
+
+    #[serde(default, deserialize_with = "empty_string_as_none")]
     pub role: Option<String>,
 }
+
+
+
 
 #[derive(Serialize)]
 pub struct AdminInfo {

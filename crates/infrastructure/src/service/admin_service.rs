@@ -37,11 +37,10 @@ pub async fn create_admin(
 ) -> Result<Admin, DbError> {
 
     payload.password = hash(&payload.password, DEFAULT_COST)
-        .map_err(|_| DbError::Internal("hash failed".into()))?;
+        .map_err(|_| DbError::Internal("Password hashing failed".into()))?;
 
     db::create_admin(pool, &payload).await
 }
-
 
 
 pub async fn update_admin(
@@ -52,7 +51,7 @@ pub async fn update_admin(
 
     if let Some(pwd) = payload.password {
         payload.password = Some(
-            hash(&pwd, DEFAULT_COST)
+            bcrypt::hash(&pwd, DEFAULT_COST)
                 .map_err(|_| DbError::Internal("hash failed".into()))?
         );
     }
