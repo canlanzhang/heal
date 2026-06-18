@@ -58,7 +58,7 @@ pub async fn handler_profile(
     State(state): State<AppState>,
 ) -> Result<Json<ApiResponse<AdminProfileResponse>>, DbError> {
 
-    let data = auth_service::get_admin_profile(
+    let data = admin_service::get_admin_profile(
         &state.db_pool,
         claims.sub,
     ).await?;

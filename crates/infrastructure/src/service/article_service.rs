@@ -2,13 +2,11 @@ use sqlx::PgPool;
 
 use crate::db;
 
-use crate::dto::common::MenuItem;
 use crate::errors::DbError;
 
 
 use crate::{
     dto::article::{
-        ArticleListItem,
         CreateArticlePayload,
         UpdateArticlePayload,
     },
