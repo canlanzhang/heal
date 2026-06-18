@@ -10,7 +10,7 @@ pub struct AdminListItem {
     pub id: i32,
     pub username: String,
     pub email: Option<String>,
-    pub role: Option<String>,
+    pub role: String,
 }
 
 #[derive(Deserialize, Validate)]
@@ -20,7 +20,7 @@ pub struct CreateAdminPayload {
     #[validate(email)]
     pub email: Option<String>,
     pub password: String,
-    pub role: Option<String>,
+    pub role: String,
 }
 
 #[derive(Debug, Deserialize, validator::Validate)]
@@ -48,7 +48,7 @@ pub struct AdminInfo {
     pub id: i32,
     pub username: String,
     pub email: Option<String>,
-    pub role: Option<String>,
+    pub role: String,
 }
 
 #[derive(Serialize)]

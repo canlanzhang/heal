@@ -30,11 +30,25 @@ CREATE TABLE IF NOT EXISTS heal_admin (
     password_hash VARCHAR(255) NOT NULL,
 
     -- 角色：方便后续扩展权限（如 'super_admin', 'editor'）
-    role VARCHAR(20) DEFAULT 'admin',
+    role VARCHAR(20) NOT NULL DEFAULT 'admin',
 
     -- 时间戳：使用 TIMESTAMPTZ 自动处理时区问题
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE heal_menus (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    path VARCHAR(100) NOT NULL,
+    title VARCHAR(50) NOT NULL,
+    icon VARCHAR(50),
+    
+    -- 核心字段：控制谁能看到
+    role VARCHAR(20) NOT NULL DEFAULT 'admin',
+
+    -- 排序
+    sort INT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE heal_article (

@@ -4,7 +4,7 @@ use crate::db;
 use crate::dto::admin::{AdminListItem,AdminProfileResponse, AdminInfo};
 use crate::dto::common::MenuItem;
 use crate::errors::DbError;
-use crate::service::build_default_menus;
+use crate::service::get_menus_by_role;
 
 
 
@@ -24,43 +24,18 @@ pub async fn get_admin_profile(
 
     let admin = db::get_admin_by_id(pool, admin_id).await?;
 
+    let menus = get_menus_by_role(pool, &admin.role).await?;
+
     let info = AdminInfo {
         id: admin.id,
         username: admin.username,
         email: admin.email,
         role: admin.role,
     };
-/* 
-    let menus = vec![
-        MenuItem {
-            name: "home".into(),
-            path: "/home".into(),
-            title: "首页".into(),
-            icon: "Home".into(),
-        },
-        MenuItem {
-            name: "admin".into(),
-            path: "/admin".into(),
-            title: "管理员管理".into(),
-            icon: "Admin".into(),
-        },
-        MenuItem {
-            name: "article".into(),
-            path: "/article".into(),
-            title: "内容管理".into(),
-            icon: "Article".into(),
-        },
-        MenuItem {
-            name: "user".into(),
-            path: "/user".into(),
-            title: "用户管理".into(),
-            icon: "User".into(),
-        },
-    ];
-*/
+    
     Ok(AdminProfileResponse {
         admin: info,
-        menus: build_default_menus(),
+        menus,
     })
 }
 
@@ -135,6 +110,7 @@ pub async fn get_admin(
     };
 
     let menus = vec![
+        /* 
         MenuItem {
             name: "home".into(),
             path: "/home".into(),
@@ -159,6 +135,7 @@ pub async fn get_admin(
             title: "用户管理".into(),
             icon: "User".into(),
         },
+        */
     ];
 
     Ok(AdminProfileResponse {

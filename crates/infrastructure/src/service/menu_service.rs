@@ -1,6 +1,31 @@
 
+use sqlx::PgPool;
+use crate::errors::DbError;
 use crate::dto::common::MenuItem;
 
+pub async fn get_menus_by_role(
+    pool: &PgPool,
+    role: &str,
+) -> Result<Vec<MenuItem>, DbError> {
+
+    let menus = sqlx::query_as!(
+        MenuItem,
+        r#"
+        SELECT name, path, title, icon
+        FROM heal_menus
+        WHERE role = $1
+        ORDER BY sort ASC
+        "#,
+        role
+    )
+    .fetch_all(pool)
+    .await
+    .map_err(DbError::Sql)?;
+
+    Ok(menus)
+}
+
+/* 
 pub fn build_default_menus() -> Vec<MenuItem> {
     vec![
         MenuItem {
@@ -29,3 +54,5 @@ pub fn build_default_menus() -> Vec<MenuItem> {
         },
     ]
 }
+
+    */

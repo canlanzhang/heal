@@ -44,5 +44,5 @@ pub struct MenuItem {
     pub name: String,
     pub path: String,
     pub title: String,
-    pub icon: String,
+    pub icon: Option<String>,
 }
