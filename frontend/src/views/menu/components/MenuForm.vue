@@ -78,7 +78,7 @@ const openCreate = () => {
 const openEdit = async (id: number) => {
   const res = await getMenuById(id);
 
-  form.value = res.data.data;
+  form.value = res.data;
 
   visible.value = true;
 };
