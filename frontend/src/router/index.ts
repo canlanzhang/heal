@@ -44,7 +44,7 @@ router.beforeEach((to, from, next) => {
 
   // ❌ 已登录不能回登录
   if (to.path === '/login' && token) {
-    next('/dashboard')
+    next('/home')
     return
   }
 
