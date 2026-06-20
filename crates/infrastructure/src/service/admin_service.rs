@@ -2,7 +2,7 @@ use sqlx::PgPool;
 
 use crate::db;
 use crate::dto::admin::{AdminListItem,AdminProfileResponse, AdminInfo};
-use crate::dto::common::MenuItem;
+
 use crate::errors::DbError;
 use crate::service::get_menus_by_role;
 

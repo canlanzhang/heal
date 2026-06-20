@@ -2,9 +2,14 @@
 use axum::{routing::{post, delete, patch, get}, Router};
 use crate::state::AppState;
 use crate::handlers::{
-    handler_list_admins,handler_create_admin,handler_get_admin,handler_update_admin,handler_delete_admin,
     handler_login, handler_profile,
+
+    handler_list_admins,handler_create_admin,handler_get_admin,handler_update_admin,handler_delete_admin,
+
+    handler_list_menus,handler_create_menu,handler_update_menu,handler_delete_menu,
+    
     handler_list_articles,handler_create_article,handler_update_article,handler_delete_article,handler_get_article,
+    
     handler_create_user, handler_delete_user, handler_patch_user, handler_get_user};
 use tower_http::cors::CorsLayer;
 async fn health_check() -> &'static str {
@@ -24,6 +29,12 @@ pub fn get_router(state: AppState) -> Router {
         .route("/api/v1/admins/{id}", get(handler_get_admin))
         .route("/api/v1/admins/{id}", patch(handler_update_admin))
         .route("/api/v1/admins/{id}", delete(handler_delete_admin))
+
+        // ================= MENU =================
+        .route("/api/v1/menus", get(handler_list_menus))          // 菜单列表（后台）
+        .route("/api/v1/menus", post(handler_create_menu))        // 创建菜单
+        .route("/api/v1/menus/{id}", patch(handler_update_menu))  // 更新菜单
+        .route("/api/v1/menus/{id}", delete(handler_delete_menu)) // 删除菜单
 
         // ================= Article =================
         .route("/api/v1/articles", get(handler_list_articles))

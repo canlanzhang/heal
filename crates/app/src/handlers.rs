@@ -12,9 +12,7 @@ use infrastructure::dto::admin::{
     AdminProfileResponse,
     AdminInfo,
 };
-use infrastructure::dto::common::{
-    MenuItem,
-};
+
 use infrastructure::dto::auth::{
     LoginRequest,
     LoginResponse,
@@ -140,9 +138,39 @@ pub async fn handler_delete_admin(
 }
 
 
+pub async fn handler_list_menus(
+    State(state): State<AppState>,
+) -> Result<Json<ApiResponse<Vec<MenuItem>>>, DbError> {
 
+    let menus = service::list_menus(&state.db_pool).await?;
 
+    Ok(Json(ApiResponse::success(menus)))
+}
 
+pub async fn handler_create_menu(
+    State(state): State<AppState>,
+    Json(payload): Json<CreateMenuPayload>,
+) -> Result<Json<ApiResponse<()>>, DbError> {
+    service::create_menu(&state.db_pool, payload).await?;
+    Ok(Json(ApiResponse::success(())))
+}
+
+pub async fn handler_update_menu(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+    Json(payload): Json<UpdateMenuPayload>,
+) -> Result<Json<ApiResponse<()>>, DbError> {
+    service::update_menu(&state.db_pool, id, payload).await?;
+    Ok(Json(ApiResponse::success(())))
+}
+
+pub async fn handler_delete_menu(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<Json<ApiResponse<()>>, DbError> {
+    service::delete_menu(&state.db_pool, id).await?;
+    Ok(Json(ApiResponse::success(())))
+}
 
 
 pub async fn handler_list_articles(

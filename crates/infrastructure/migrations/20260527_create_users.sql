@@ -37,18 +37,21 @@ CREATE TABLE IF NOT EXISTS heal_admin (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE heal_menus (
+CREATE TABLE IF NOT EXISTS heal_menus (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    path VARCHAR(100) NOT NULL,
-    title VARCHAR(50) NOT NULL,
-    icon VARCHAR(50),
-    
-    -- 核心字段：控制谁能看到
-    role VARCHAR(20) NOT NULL DEFAULT 'admin',
 
-    -- 排序
-    sort INT NOT NULL DEFAULT 0
+    name VARCHAR(50) NOT NULL,      -- 路由名
+    path VARCHAR(100) NOT NULL,     -- 路由路径
+    title VARCHAR(50) NOT NULL,     -- 显示名称
+    icon VARCHAR(50),               -- 图标
+
+    role VARCHAR(20) NOT NULL DEFAULT 'admin', -- 哪个角色可见（你现在简化版核心）
+
+    parent_id INT DEFAULT NULL,     -- 支持树结构（可选但建议留）
+    sort INT DEFAULT 0,
+
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 INSERT INTO heal_menus (name, path, title, icon, role, sort) VALUES

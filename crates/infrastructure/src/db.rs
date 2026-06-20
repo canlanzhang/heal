@@ -1,4 +1,5 @@
 pub mod admin;
+pub mod menu;
 pub mod article;
 pub mod user;
 pub mod pool;
@@ -16,6 +17,7 @@ pub use admin::{
     query_admin_for_login,
 
 };
+pub use menu::*;
 pub use article::*;
 pub use user::{
     create_user,

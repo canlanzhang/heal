@@ -39,6 +39,7 @@ where
 
 
 
+/* 
 #[derive(Serialize)]
 pub struct MenuItem {
     pub name: String,
@@ -46,3 +47,4 @@ pub struct MenuItem {
     pub title: String,
     pub icon: Option<String>,
 }
+    */

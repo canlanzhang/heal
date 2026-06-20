@@ -2,7 +2,7 @@
 use serde::{Serialize, Deserialize};
 
 use validator::Validate;
-use crate::dto::common::MenuItem;
+use crate::dto::menu::MenuItem;
 use crate::dto::utils::empty_string_as_none;
 
 #[derive(Debug, Serialize)]
