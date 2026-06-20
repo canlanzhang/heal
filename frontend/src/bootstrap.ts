@@ -2,8 +2,16 @@ import router from '@/router'
 import { useUserStore } from '@/store/user'
 import { buildDynamicRoutes } from '@/router/dynamic'
 
+let inited = false
+
 export async function bootstrap() {
   const store = useUserStore()
+
+  if (!store.token) return
+
+  // 防止重复初始化
+  if (inited) return
+  inited = true
 
   const token = store.token
   if (!token) return

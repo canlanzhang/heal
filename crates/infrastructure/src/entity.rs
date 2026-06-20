@@ -21,7 +21,7 @@ pub struct Menu {
     pub icon: Option<String>,
     pub role: String,
     pub parent_id: Option<i32>,
-    pub sort: i32,
+    pub sort: Option<i32>,
 }
 
 

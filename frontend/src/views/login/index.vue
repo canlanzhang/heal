@@ -1,42 +1,44 @@
 <template>
-  <div class="login-container">
-    <h2>后台系统登录</h2>
+  <div class="login-page">
+    <el-card class="login-box">
+      <h2>后台登录</h2>
 
-    <form @submit.prevent="handleLogin">
-      <!-- 用户名 -->
-      <div class="input-group">
-        <label>用户名</label>
-        <input v-model="form.username" type="text" placeholder="请输入用户名" />
-      </div>
+      <el-form 
+        :model="form" 
+        label-width="80px"
+        @submit.prevent="handleLogin">
+        <el-form-item label="用户名">
+          <el-input v-model="form.username" />
+        </el-form-item>
 
-      <!-- 密码 -->
-      <div class="input-group">
-        <label>密码</label>
-        <input v-model="form.password" type="password" placeholder="请输入密码" />
-      </div>
+        <el-form-item label="密码">
+          <el-input v-model="form.password" type="password" />
+        </el-form-item>
 
-      <!-- 错误提示 -->
-      <div v-if="errorMsg" class="error">
-        {{ errorMsg }}
-      </div>
-
-      <!-- 登录按钮 -->
-      <button type="submit" :disabled="loading">
-        {{ loading ? '登录中...' : '登录' }}
-      </button>
-    </form>
+        <el-button 
+          type="primary" 
+          :loading="loading"
+          native-type="submit">
+          登录
+        </el-button>
+      </el-form>
+    </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import { useUserStore } from '@/store/user';
-import { loginApi, getUserInfoApi } from '@/api/auth';
+import { bootstrap } from '@/bootstrap'
+import { loginApi, getProfileApi } from '@/api/auth';
 import { generateRoutes } from '@/utils/dynamicRoute';
 
 const router = useRouter();
 const userStore = useUserStore();
+
+const loading = ref(false)
 
 // 表单
 const form = reactive({
@@ -45,20 +47,21 @@ const form = reactive({
 });
 
 // 状态
-const loading = ref(false);
-const errorMsg = ref('');
+//const loading = ref(false);
+//const errorMsg = ref('');
 
 // 登录逻辑
 const handleLogin = async () => {
-  errorMsg.value = '';
+  //errorMsg.value = '';
 
   if (!form.username || !form.password) {
-    errorMsg.value = '请输入用户名和密码';
-    return;
+    ElMessage.warning('请输入用户名和密码')
+    return
   }
 
+  loading.value = true
+
   try {
-    loading.value = true;
 
     // 1️⃣ 登录
     const loginRes = await loginApi({
@@ -66,85 +69,45 @@ const handleLogin = async () => {
       password: form.password
     });
 
+    // 1️⃣ 调登录接口
     const token = loginRes?.data?.token;
-console.dir(loginRes, { depth: null, colors: true });
+//console.dir(loginRes, { depth: null, colors: true });
 
-    if (!token) {
-      errorMsg.value = loginRes?.message || '登录失败';
-      return;
-    }
+    // 2️⃣ 保存 token
+    userStore.token = token
+    localStorage.setItem('token', token)
 
-    // 2️⃣ 存 token
-    userStore.setToken(token);
+    ElMessage.success('登录成功')
 
-    // 3️⃣ 获取用户信息 + 菜单
-    const infoRes = await getUserInfoApi();
+    // 3️⃣ 拉用户信息 + menus（后端返回）
+    await userStore.fetchProfile()
 
-    const user = infoRes?.data?.user;
-    const menus = infoRes?.data?.menus || [];
+    // 4️⃣ 初始化动态路由（关键！！！）
+    await bootstrap()
 
-    userStore.setUserInfo(user);
-    userStore.setMenus(menus);
-
-    // 4️⃣ 动态注册路由（核心）
-    generateRoutes(menus);
-
-    // 5️⃣ 跳转首页
-    router.push('/home');
+    // 5️⃣ 跳转首页（必须在 bootstrap 后）
+    router.push('/home')
 
   } catch (err: any) {
-    errorMsg.value =
-      err?.response?.data?.message ||
-      '网络异常，请稍后重试';
+    console.log("err: "+err);
+    ElMessage.error('登录失败，请检查账号密码')
   } finally {
     loading.value = false;
   }
 };
 </script>
 
+
 <style scoped>
-.login-container {
+.login-page {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f5f5f5;
+}
+
+.login-box {
   width: 360px;
-  margin: 120px auto;
-  padding: 24px;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-}
-
-h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.input-group {
-  margin-bottom: 12px;
-}
-
-.input-group input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-}
-
-button {
-  width: 100%;
-  padding: 10px;
-  background: #409eff;
-  border: none;
-  color: #fff;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-button:disabled {
-  background: #a0cfff;
-}
-
-.error {
-  color: red;
-  margin-bottom: 10px;
-  font-size: 13px;
 }
 </style>

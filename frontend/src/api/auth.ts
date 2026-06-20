@@ -12,6 +12,6 @@ export const loginApi = (data: {
 /**
  * 获取当前用户信息 + 菜单
  */
-export const getUserInfoApi = () => {
+export const getProfileApi = () => {
   return request.get('/v1/auth/profile')
 }

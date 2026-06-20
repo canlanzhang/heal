@@ -1,24 +1,24 @@
 import { defineStore } from 'pinia'
-import { getUserInfoApi } from '../api/auth'
+import { getProfileApi } from '@/api/auth'
 
 export const useUserStore = defineStore('user', {
   state: () => ({
     token: localStorage.getItem('token') || '',
-    user: null,
-
     // ⭐关键：持久化菜单
     menus: JSON.parse(localStorage.getItem('menus') || '[]'),
+    user: null,    
   }),
 
   actions: {
+    /*
     setToken(token: string) {
       this.token = token
       localStorage.setItem('token', token)
     },
-
+*/
     async fetchProfile() {
-      const res = await getUserInfoApi()
-console.log(res);
+      const res = await getProfileApi()
+
       this.user = res.data.admin
       this.menus = res.data.menus
 

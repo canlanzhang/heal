@@ -2,25 +2,29 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import { createPinia } from 'pinia'
-import { useUserStore } from './store/user'
 import { bootstrap } from './bootstrap'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 
-const app = createApp(App)
+async function start() {
+  const app = createApp(App)
 
-const pinia = createPinia()
-app.use(pinia)
+  app.use(createPinia())
+  app.use(router)
 
-//const store = useUserStore(pinia)
-
-// ⭐关键：刷新恢复登录态
-//store.loadToken()
-
-// ⭐关键：恢复动态路由
+  // ⭐关键：恢复动态路由
   await bootstrap()
 
+  app.use(ElementPlus)
 
-app.use(router)
-app.use(ElementPlus)
-app.mount('#app')
+  app.mount('#app')
+
+}
+
+
+
+start()
+
+
+
+
