@@ -18,8 +18,9 @@ const router = useRouter()
 const store = useUserStore()
 
 const logout = () => {
-  store.clear()
-  router.push('/login')
+  localStorage.clear()
+  location.href = '/login'
+  // router.push('/login')
 }
 </script>
 
