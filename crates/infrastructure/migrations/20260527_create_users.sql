@@ -51,6 +51,13 @@ CREATE TABLE heal_menus (
     sort INT NOT NULL DEFAULT 0
 );
 
+INSERT INTO heal_menus (name, path, title, icon, role, sort) VALUES
+('home', '/home', '首页', 'Home', 'admin', 1),
+('dashboard', '/dashboard', '控制台', 'Dashboard', 'admin', 2),
+('admin', '/admin', '管理员管理', 'UserCog', 'admin', 3),
+('article', '/article', '内容管理', 'FileText', 'admin', 4),
+('user', '/user', '用户管理', 'Users', 'admin', 5);
+
 CREATE TABLE heal_article (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
