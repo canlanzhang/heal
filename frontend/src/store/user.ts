@@ -4,18 +4,14 @@ import { getProfileApi } from '@/api/auth'
 export const useUserStore = defineStore('user', {
   state: () => ({
     token: localStorage.getItem('token') || '',
-    // ⭐关键：持久化菜单
+    // ⭐关键：持久化
+    user: JSON.parse(localStorage.getItem('user') || '[]'),
     menus: JSON.parse(localStorage.getItem('menus') || '[]'),
-    user: null,    
+    
   }),
 
   actions: {
-    /*
-    setToken(token: string) {
-      this.token = token
-      localStorage.setItem('token', token)
-    },
-*/
+
     async fetchProfile() {
       const res = await getProfileApi()
 
@@ -23,6 +19,7 @@ export const useUserStore = defineStore('user', {
       this.menus = res.data.menus
 
       // ⭐持久化
+      localStorage.setItem('user', JSON.stringify(this.user))
       localStorage.setItem('menus', JSON.stringify(this.menus))
 
       return res.data

@@ -11,12 +11,12 @@ const routes = [
     path: '/',
     name: 'layout',   // ⭐关键
     component: () => import('@/layout/BasicLayout.vue'),
-    redirect: '/home',
+    redirect: '/dashboard',
     children: [
       {
-        path: 'home',
-        name: 'home',
-        component: () => import('@/views/home/index.vue')
+        path: 'dashboard',
+        name: 'dashboard',
+        component: () => import('@/views/dashboard/index.vue')
       }
       // ⚠️ admin / article 可以后端动态加
     ]
@@ -44,7 +44,7 @@ router.beforeEach((to, from, next) => {
 
   // ❌ 已登录不能回登录
   if (to.path === '/login' && token) {
-    next('/home')
+    next('/dashboard')
     return
   }
 

@@ -1,18 +1,27 @@
-const modules = import.meta.glob('@/views/**/index.vue')
+const modules = import.meta.glob('/src/views/**/index.vue')
 
-/**
- * menus → routes
- */
 export function buildDynamicRoutes(menus: any[]) {
   return menus.map(menu => {
+    const cleanPath = menu.path.replace(/^\//, '')
+
+    const matchKey = Object.keys(modules).find(key =>
+      key === `/src/views/${cleanPath}/index.vue`
+    )
+
+    console.log('menu:', menu.path)
+    console.log('matchKey:', matchKey)
+
     return {
-      path: menu.path.replace(/^\//, ''), // /menu -> menu
+      path: cleanPath, // ❗不能带 /
       name: menu.name,
+
+      component: matchKey
+        ? modules[matchKey]   // ❗关键：这里是函数
+        : undefined,
+
       meta: {
-        title: menu.title,
-        icon: menu.icon,
-      },
-      component: modules[`/src/views${menu.path}/index.vue`],
+        title: menu.title
+      }
     }
   })
 }

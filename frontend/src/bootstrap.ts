@@ -7,30 +7,31 @@ let inited = false
 export async function bootstrap() {
   const store = useUserStore()
 
-  if (!store.token) return
-
-  // 防止重复初始化
   if (inited) return
   inited = true
 
-  const token = store.token
+  const token = store.token || localStorage.getItem('token')
   if (!token) return
 
+  store.token = token
+
   try {
-    // ⭐没有 menus（刷新情况）
-    if (!store.menus.length) {
+    if (!store.user || !store.menus.length) {
       await store.fetchProfile()
     }
 
-    // ⭐生成动态路由
+    console.log('menus:', store.menus)
+
     const routes = buildDynamicRoutes(store.menus)
 
-    // ⭐避免重复 addRoute
     routes.forEach(r => {
       if (!router.hasRoute(r.name)) {
         router.addRoute('layout', r)
       }
     })
+
+    // 🚨🔥 关键修复（你缺的就是这行）
+    router.replace(router.currentRoute.value.fullPath)
 
   } catch (e) {
     console.error('bootstrap error', e)

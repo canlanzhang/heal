@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="dashboard">
 
     <!-- 顶部统计 -->
     <el-row :gutter="20">

@@ -86,7 +86,7 @@ const handleLogin = async () => {
     await bootstrap()
 
     // 5️⃣ 跳转首页（必须在 bootstrap 后）
-    router.push('/home')
+    router.push('/dashboard')
 
   } catch (err: any) {
     console.log("err: "+err);
