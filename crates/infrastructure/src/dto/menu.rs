@@ -30,6 +30,7 @@ pub struct UpdateMenuPayload {
 
 #[derive(Debug, Serialize)]
 pub struct MenuItem {
+    pub id: i32,
     pub name: String,
     pub path: String,
     pub title: String,

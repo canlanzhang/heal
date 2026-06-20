@@ -155,6 +155,15 @@ pub async fn handler_create_menu(
     Ok(Json(ApiResponse::success(())))
 }
 
+pub async fn handler_get_menu(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<Json<ApiResponse<Menu>>, DbError> {
+    let data = service::get_menu(&state.db_pool, id).await?;
+    Ok(Json(ApiResponse::success(data)))
+}
+
+
 pub async fn handler_update_menu(
     State(state): State<AppState>,
     Path(id): Path<i32>,

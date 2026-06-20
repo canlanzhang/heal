@@ -60,6 +60,7 @@ INSERT INTO heal_menus (name, path, title, icon, role, sort) VALUES
 ('admin', '/admin', '管理员管理', 'UserCog', 'admin', 3),
 ('article', '/article', '内容管理', 'FileText', 'admin', 4),
 ('user', '/user', '用户管理', 'Users', 'admin', 5);
+('menu', '/menu', '菜单管理', 'Menu', 'admin', 6)
 
 CREATE TABLE heal_article (
     id SERIAL PRIMARY KEY,

@@ -1,12 +1,13 @@
 use sqlx::PgPool;
 use crate::dto::menu::*;
+use crate::entity::Menu;
 use crate::errors::DbError;
 
 pub async fn list_menus(pool: &PgPool) -> Result<Vec<MenuItem>, DbError> {
     let menus = sqlx::query_as!(
         MenuItem,
         r#"
-        SELECT name, path, title, icon
+        SELECT id,name, path, title, icon
         FROM heal_menus
         ORDER BY sort ASC
         "#
@@ -25,7 +26,7 @@ pub async fn get_menus_by_role(
     let menus = sqlx::query_as!(
         MenuItem,
         r#"
-        SELECT name, path, title, icon
+        SELECT id,name, path, title, icon
         FROM heal_menus
         WHERE role = $1
         ORDER BY sort ASC
@@ -37,6 +38,26 @@ pub async fn get_menus_by_role(
     .map_err(DbError::Sql)?;
 
     Ok(menus)
+}
+
+pub async fn get_menu_by_id(
+    pool: &PgPool,
+    id: i32,
+) -> Result<Menu, DbError> {
+    let menu = sqlx::query_as!(
+        Menu,
+        r#"
+        SELECT id, name, path, title, icon, role, sort
+        FROM heal_menus
+        WHERE id = $1
+        "#,
+        id
+    )
+    .fetch_one(pool)
+    .await
+    .map_err(DbError::Sql)?;
+
+    Ok(menu)
 }
 
 pub async fn create_menu(

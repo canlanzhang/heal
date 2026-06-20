@@ -12,6 +12,18 @@ pub struct Admin {
     //pub updated_at: DateTime<chrono::Utc>,
 }
 
+#[derive(Debug, Serialize, Deserialize, FromRow)]
+pub struct Menu {
+    pub id: i32,
+    pub name: String,
+    pub path: String,
+    pub title: String,
+    pub icon: String,
+    pub role: String,
+    pub sort: i32,
+}
+
+
 #[derive(Debug, FromRow, Serialize, Deserialize)]
 pub struct Article {
     pub id: i32,

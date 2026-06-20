@@ -1,10 +1,11 @@
 use sqlx::PgPool;
+use crate::db;
 use crate::dto::menu::*;
+use crate::entity::Menu;
 use crate::errors::DbError;
-use crate::db::menu as menu_db;
 
 pub async fn list_menus(pool: &PgPool) -> Result<Vec<MenuItem>, DbError> {
-    menu_db::list_menus(pool).await
+    db::list_menus(pool).await
 }
 
 pub async fn get_menus_by_role(
@@ -18,14 +19,19 @@ pub async fn get_menus_by_role(
         role
     };
 
-    menu_db::get_menus_by_role(pool, role).await
+    db::get_menus_by_role(pool, role).await
 }
 
 pub async fn create_menu(
     pool: &PgPool,
     payload: CreateMenuPayload,
 ) -> Result<(), DbError> {
-    menu_db::create_menu(pool, payload).await
+    db::create_menu(pool, payload).await
+}
+
+
+pub async fn get_menu(pool: &PgPool, id: i32) -> Result<Menu, DbError> {
+    db::menu::get_menu_by_id(pool, id).await
 }
 
 pub async fn update_menu(
@@ -33,9 +39,12 @@ pub async fn update_menu(
     id: i32,
     payload: UpdateMenuPayload,
 ) -> Result<(), DbError> {
-    menu_db::update_menu(pool, id, payload).await
+    db::menu::update_menu(pool, id, payload).await
 }
 
 pub async fn delete_menu(pool: &PgPool, id: i32) -> Result<(), DbError> {
-    menu_db::delete_menu(pool, id).await
+    db::menu::delete_menu(pool, id).await
 }
+
+
+
