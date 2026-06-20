@@ -26,6 +26,7 @@ use infrastructure::{
     db, 
     entity::{
         Admin,
+        Menu,
         Article,
         User,
 

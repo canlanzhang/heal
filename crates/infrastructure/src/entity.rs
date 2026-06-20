@@ -18,8 +18,9 @@ pub struct Menu {
     pub name: String,
     pub path: String,
     pub title: String,
-    pub icon: String,
+    pub icon: Option<String>,
     pub role: String,
+    pub parent_id: Option<i32>,
     pub sort: i32,
 }
 

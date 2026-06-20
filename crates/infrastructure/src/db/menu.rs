@@ -47,7 +47,7 @@ pub async fn get_menu_by_id(
     let menu = sqlx::query_as!(
         Menu,
         r#"
-        SELECT id, name, path, title, icon, role, sort
+        SELECT id, name, path, title, icon, role, parent_id, sort
         FROM heal_menus
         WHERE id = $1
         "#,
