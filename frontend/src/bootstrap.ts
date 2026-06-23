@@ -5,37 +5,27 @@ import { buildDynamicRoutes } from '@/router/dynamic'
 let inited = false
 
 export async function bootstrap() {
-  const store = useUserStore()
-
   if (inited) return
   inited = true
 
-  const token = store.token || localStorage.getItem('token')
+  const store = useUserStore()
+
+  const token = localStorage.getItem('token')
   if (!token) return
 
-  store.token = token
+  store.setToken(token)
 
-  try {
-    if (!store.user || !store.menus.length) {
-      await store.fetchProfile()
-    }
+  await store.fetchProfile()
 
-    console.log('menus:', store.menus)
+  console.log('menus:', store.menus)
 
-    const routes = buildDynamicRoutes(store.menus)
+  const routes = buildDynamicRoutes(store.menus)
 
-    routes.forEach(r => {
-      if (!router.hasRoute(r.name)) {
-        router.addRoute('layout', r)
-      }
-    })
+  console.log('routes:', routes)
 
-    // 🚨🔥 关键修复（你缺的就是这行）
-    router.replace(router.currentRoute.value.fullPath)
+  routes.forEach(r => {
+    console.log('➕ add route:', r.path)
 
-  } catch (e) {
-    console.error('bootstrap error', e)
-    store.logout()
-    router.push('/login')
-  }
+    router.addRoute('layout', r)
+  })
 }
