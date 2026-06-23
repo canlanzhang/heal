@@ -9,7 +9,8 @@ export const useUserStore = defineStore('user', {
     token: '',
     user: null,
     menus: [],
-    routesInited: false
+    routesInited: false,
+    hasInitRoutes : false
   }),
 
   actions: {

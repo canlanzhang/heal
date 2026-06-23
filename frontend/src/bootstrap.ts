@@ -2,30 +2,36 @@ import router from '@/router'
 import { useUserStore } from '@/store/user'
 import { buildDynamicRoutes } from '@/router/dynamic'
 
-let inited = false
+
 
 export async function bootstrap() {
-  if (inited) return
-  inited = true
-console.log("1")
   const store = useUserStore()
-console.log("2")
+
+  console.log('🔥 bootstrap START')
+
   const token = localStorage.getItem('token')
   if (!token) return
-console.log("3")
+
   store.setToken(token)
-console.log("4")
+
   await store.fetchProfile()
-console.log("5")
-  console.log('menus:', store.menus)
+
+  console.log('🔥 menus:', store.menus)
 
   const routes = buildDynamicRoutes(store.menus)
 
-  console.log('routes:', routes)
+  console.log('🔥 generated routes:', routes)   // ⭐ 就写这里
+
+  console.log('🔥 routes:', routes)
 
   routes.forEach(r => {
     console.log('➕ add route:', r.path)
 
     router.addRoute('layout', r)
   })
+
+  // ⭐关键修复
+router.replace(router.currentRoute.value.fullPath)
+  console.log('🔥 AFTER ROUTER:', router.getRoutes())
+  store.hasInitRoutes = true
 }
