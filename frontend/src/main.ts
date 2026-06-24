@@ -21,18 +21,18 @@ async function start() {
   const token = localStorage.getItem('token')
 
 
-  app.use(router)
+
     if(token){
     store.setToken(token)
-    
     await store.fetchProfile()
+    await bootstrap()
     console.log("mm"+store.menus)
   }
-
+  app.use(router)
   app.use(ElementPlus)
 
   // ⭐关键：必须在 mount 前完成初始化
-  await bootstrap()
+  
 
   app.mount('#app')
 }
