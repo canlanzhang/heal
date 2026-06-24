@@ -16,6 +16,7 @@ export const useUserStore = defineStore('user', {
   actions: {
     setToken(token: string) {
       this.token = token
+      localStorage.setItem('token', token)
     },
 
     setMenus(menus: any[]) {

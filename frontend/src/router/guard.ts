@@ -12,12 +12,12 @@ router.beforeEach(async (to, from, next) => {
 
   // ❌ 1. 未登录直接去 login
   console.log("token: "+ token)
-  console.log("1 to.path: "+ to.path)
+
   if (!token && to.path !== '/login') {
     return next('/login')
   }
 
-  console.log("2 to.path: "+ to.path)
+
   // ✔ 2. 已登录访问 login，放行
   if (to.path === '/login') {
     return next()

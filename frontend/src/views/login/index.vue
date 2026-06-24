@@ -62,7 +62,7 @@ const handleLogin = async () => {
 
     // 1️⃣ 存 token
     store.setToken(token)
-    localStorage.setItem('token', token)
+
 
     // 2️⃣ ⭐关键：用 token 拉 menus
     await store.fetchProfile()
