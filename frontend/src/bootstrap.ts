@@ -2,34 +2,47 @@ import router from '@/router'
 import { useUserStore } from '@/store/user'
 import { buildDynamicRoutes } from '@/router/dynamic'
 
+let bootstrapPromise: Promise<void> | null = null
+
 export async function bootstrap() {
-  const store = useUserStore()
+  if (bootstrapPromise) return bootstrapPromise
 
-  console.log('🔥 bootstrap START')
+  bootstrapPromise =new Promise(async (resolve) => {
+    const store = useUserStore()
 
-  // ❗防重复执行
-  if (store.hasInitRoutes) return
+    console.log('🔥 bootstrap START')
 
-  // ❗必须有菜单
-  if (!store.menus || store.menus.length === 0) {
-    console.warn('❌ no menus, skip bootstrap')
-    return
-  }
+    // ❗防重复执行
+    if (store.hasInitRoutes) return
 
-  // 1️⃣ 生成路由
-  const routes = buildDynamicRoutes(store.menus)
+    // ❗必须有菜单
+    if (!store.menus || store.menus.length === 0) {
+      console.warn('❌ no menus, skip bootstrap')
+      return
+    }
 
-  console.log('📦 dynamic routes:', routes)
+    // 1️⃣ 生成路由
+    const routes = buildDynamicRoutes(store.menus)
 
-  // 2️⃣ 注册路由
-  routes.forEach(r => {
-    router.addRoute('layout', r)
+    console.log('📦 dynamic routes:', routes)
+
+    // 2️⃣ 注册路由
+    routes.forEach(r => {
+      router.addRoute('layout', r)
+    })
+
+    // 3️⃣ 标记已初始化
+    store.hasInitRoutes = true
+
+
+
+    console.log('✅ bootstrap done')
+
+
+
+
+    resolve()
   })
-
-  // 3️⃣ 标记已初始化
-  store.hasInitRoutes = true
-
-
-
-  console.log('✅ bootstrap done')
+return bootstrapPromise
+  
 }
