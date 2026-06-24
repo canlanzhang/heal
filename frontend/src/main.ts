@@ -19,12 +19,16 @@ async function start() {
 
   const store = useUserStore(pinia)
   const token = localStorage.getItem('token')
-  if(token){
-    store.setToken(token)
-  }
 
 
   app.use(router)
+    if(token){
+    store.setToken(token)
+    
+    await store.fetchProfile()
+    console.log("mm"+store.menus)
+  }
+
   app.use(ElementPlus)
 
   // ⭐关键：必须在 mount 前完成初始化
