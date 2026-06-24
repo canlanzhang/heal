@@ -34,6 +34,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/store/user'
 import { loginApi } from '@/api/auth'
+import { bootstrap } from '@/bootstrap'
 
 const router = useRouter()
 const store = useUserStore()
@@ -66,6 +67,7 @@ const handleLogin = async () => {
 
     // 2️⃣ ⭐关键：用 token 拉 menus
     await store.fetchProfile()
+    await bootstrap()
 
     console.log('menus:', store.menus)
 
