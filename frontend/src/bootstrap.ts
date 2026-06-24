@@ -2,36 +2,34 @@ import router from '@/router'
 import { useUserStore } from '@/store/user'
 import { buildDynamicRoutes } from '@/router/dynamic'
 
-
-
 export async function bootstrap() {
   const store = useUserStore()
 
   console.log('🔥 bootstrap START')
 
-  const token = localStorage.getItem('token')
-  if (!token) return
+  // ❗防重复执行
+  if (store.hasInitRoutes) return
 
-  store.setToken(token)
+  // ❗必须有菜单
+  if (!store.menus || store.menus.length === 0) {
+    console.warn('❌ no menus, skip bootstrap')
+    return
+  }
 
-  await store.fetchProfile()
-
-  console.log('🔥 menus:', store.menus)
-
+  // 1️⃣ 生成路由
   const routes = buildDynamicRoutes(store.menus)
 
-  console.log('🔥 generated routes:', routes)   // ⭐ 就写这里
+  console.log('📦 dynamic routes:', routes)
 
-  console.log('🔥 routes:', routes)
-
+  // 2️⃣ 注册路由
   routes.forEach(r => {
-    console.log('➕ add route:', r.path)
-
     router.addRoute('layout', r)
   })
 
-  // ⭐关键修复
-router.replace(router.currentRoute.value.fullPath)
-  console.log('🔥 AFTER ROUTER:', router.getRoutes())
+  // 3️⃣ 标记已初始化
   store.hasInitRoutes = true
+
+
+
+  console.log('✅ bootstrap done')
 }
