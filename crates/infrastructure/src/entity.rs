@@ -2,7 +2,7 @@ use sqlx::FromRow;
 use serde::{Serialize, Deserialize};
 use chrono::{DateTime, Utc}; 
 #[derive(Debug, FromRow, Serialize, Deserialize)]
-pub struct Admin {
+pub struct User {
     pub id: i32,
     pub username: String,
     pub email: Option<String>,
@@ -36,13 +36,6 @@ pub struct Article {
     //pub updated_at: chrono::NaiveDateTime,
 }
 
-#[derive(Debug, FromRow, Serialize, Deserialize)]
-pub struct User {
-    pub id: i32,
-    pub username: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>, 
-}
 
 #[derive(Debug, FromRow, Serialize, Deserialize)]
 pub struct Todo {

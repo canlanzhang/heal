@@ -6,17 +6,24 @@ export const useUserStore = defineStore('user', {
 
   
   state: () => ({
-    token: '',
+    token: null,
+    authReady: false,
+    username: "",
     user: null,
     menus: [],
     routesInited: false,
-    hasInitRoutes : false
+    // : false
   }),
 
   actions: {
     setToken(token: string) {
       this.token = token
       localStorage.setItem('token', token)
+    },
+
+    setUserName(username: string) {
+      this.username = username
+      localStorage.setItem('username', username)
     },
 
     setMenus(menus: any[]) {
@@ -56,9 +63,9 @@ export const useUserStore = defineStore('user', {
       const res = await getProfileApi()
 
       // 假设后端结构
-      this.user = res.data.user
+      
       this.menus = res.data.menus
-
+      this.user = res.data.user
       return res.data
     }
   }

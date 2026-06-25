@@ -10,21 +10,21 @@ pub async fn login(
     payload: LoginRequest,
 ) -> Result<LoginResponse, DbError> {
 
-    let admin = db::query_admin_for_login(pool, &payload.username).await?;
+    let user = db::query_user_for_login(pool, &payload.username).await?;
 
-    let ok = verify(&payload.password, &admin.password_hash)
+    let ok = verify(&payload.password, &user.password_hash)
         .map_err(|_| DbError::Internal("bcrypt error".into()))?;
 
     if !ok {
         return Err(DbError::Unauthorized);
     }
 
-    let token = Claims::generate_token(admin.id)
+    let token = Claims::generate_token(user.id)
         .map_err(|_| DbError::TokenError)?;
 
     Ok(LoginResponse {
         token,
-        username: admin.username,
+        username: user.username,
     })
 }
 

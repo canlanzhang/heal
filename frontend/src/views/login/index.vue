@@ -53,8 +53,10 @@ const handleLogin = async () => {
     loading.value = true
 
     const res = await loginApi(form)
-
     const token = res?.data?.token
+    //const username = res?.data?.username
+    console.log("login token:" + token)
+    console.log("!token: "+!token)
 
     if (!token) {
       ElMessage.error('token 获取失败')
@@ -63,13 +65,16 @@ const handleLogin = async () => {
 
     // 1️⃣ 存 token
     store.setToken(token)
+    store.authReady = true
+    //store.setUserName(username)
+    //console.log("用户名： "+ username)
 
 
     // 2️⃣ ⭐关键：用 token 拉 menus
-    await store.fetchProfile()
-    await bootstrap()
+    //await store.fetchProfile()
+    //await bootstrap()
 
-    console.log('menus:', store.menus)
+    //console.log('menus:', store.menus)
 
     ElMessage.success('登录成功')
 

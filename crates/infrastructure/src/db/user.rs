@@ -1,13 +1,33 @@
 
 use crate::entity::{User};
-use crate::dto::user::{
+use crate::dto::users::{
     CreateUserPayload,
     UpdateUserPayload,
 };
+
 use crate::errors::DbError;
 use sqlx::postgres::{PgPool};
 
+pub async fn list_users(pool: &PgPool) -> Result<Vec<User>, DbError> {
+    let users = sqlx::query_as!(
+        User,
+        r#"
+        SELECT
+            id,
+            username,
+            email,
+            password_hash,
+            role
+        FROM heal_users
+        ORDER BY id DESC
+        "#
+    )
+    .fetch_all(pool)
+    .await
+    .map_err(DbError::Sql)?;
 
+    Ok(users)
+}
 
 pub async fn create_user(
     pool: &PgPool,
@@ -16,15 +36,24 @@ pub async fn create_user(
     let user = sqlx::query_as!(
         User,
         r#"
-        INSERT INTO users (username)
-        VALUES ($1)
+        INSERT INTO heal_users (
+            username,
+            email,
+            password_hash,
+            role
+        )
+        VALUES ($1, $2, $3, $4)
         RETURNING
             id,
             username,
-            created_at as "created_at!",
-            updated_at as "updated_at!"
+            email,
+            password_hash,
+            role
         "#,
-        payload.username
+        payload.username,
+        payload.email,
+        payload.password,
+        payload.role
     )
     .fetch_one(pool)
     .await
@@ -43,18 +72,24 @@ pub async fn update_user(
     let user = sqlx::query_as!(
         User,
         r#"
-        UPDATE users
+        UPDATE heal_users
         SET
             username = COALESCE($1, username),
-            updated_at = NOW()
-        WHERE id = $2
+            email = COALESCE($2, email),
+            password_hash = COALESCE($3, password_hash),
+            role = COALESCE($4, role)
+        WHERE id = $5
         RETURNING
             id,
             username,
-            created_at as "created_at!",
-            updated_at as "updated_at!"
+            email,
+            password_hash,
+            role
         "#,
         payload.username,
+        payload.email,
+        payload.password,
+        payload.role,
         user_id
     )
     .fetch_optional(pool)
@@ -69,7 +104,7 @@ pub async fn update_user(
 pub async fn delete_user(pool: &PgPool, user_id: i32) -> Result<(), DbError> {
     let result = sqlx::query!(
         r#"
-        DELETE FROM users
+        DELETE FROM heal_users
         WHERE id = $1
         "#,
         user_id
@@ -95,9 +130,10 @@ pub async fn get_user_by_id(pool: &PgPool, user_id: i32) -> Result<User, DbError
         SELECT
             id,
             username,
-            created_at as "created_at!",
-            updated_at as "updated_at!"
-        FROM users
+            email,
+            password_hash,
+            role
+        FROM heal_users
         WHERE id = $1
         "#,
         user_id
@@ -110,6 +146,7 @@ pub async fn get_user_by_id(pool: &PgPool, user_id: i32) -> Result<User, DbError
 }
 
 
+
 pub async fn get_user_by_username(
     pool: &PgPool,
     username: &str,
@@ -120,9 +157,36 @@ pub async fn get_user_by_username(
         SELECT
             id,
             username,
-            created_at as "created_at!",
-            updated_at as "updated_at!"
-        FROM users
+            email,
+            password_hash,
+            role
+        FROM heal_users
+        WHERE username = $1
+        "#,
+        username
+    )
+    .fetch_optional(pool)
+    .await
+    .map_err(DbError::Sql)?;
+
+    user.ok_or(DbError::NotFound)
+}
+
+
+pub async fn query_user_for_login(
+    pool: &PgPool,
+    username: &str,
+) -> Result<User, DbError> {
+    let user = sqlx::query_as!(
+        User,
+        r#"
+        SELECT
+            id,
+            username,
+            email,
+            password_hash,
+            role
+        FROM heal_users
         WHERE username = $1
         "#,
         username

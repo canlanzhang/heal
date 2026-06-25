@@ -8,9 +8,9 @@ use axum::{
 
 
 use crate::state::AppState; 
-use infrastructure::dto::admin::{
-    AdminProfileResponse,
-    AdminInfo,
+use infrastructure::dto::users::{
+    UserProfileResponse,
+    UserInfo,
 };
 
 use infrastructure::dto::auth::{
@@ -18,17 +18,13 @@ use infrastructure::dto::auth::{
     LoginResponse,
     Claims,
 };
-use infrastructure::dto::user::{
-    CreateUserPayload,
-    UpdateUserPayload,
-};
+
 use infrastructure::{
     db, 
     entity::{
-        Admin,
+        User,
         Menu,
         Article,
-        User,
 
     }, 
     errors::*,
@@ -39,7 +35,7 @@ use serde::{Serialize, Deserialize};
 use bcrypt::{hash,DEFAULT_COST,verify, BcryptError};
 //use infrastructure::service::login;
 use infrastructure::service;
-use infrastructure::service::{admin_service,auth_service};
+use infrastructure::service::{users_service,auth_service};
 
 pub async fn handler_login(
     State(state): State<AppState>,
@@ -55,9 +51,9 @@ pub async fn handler_login(
 pub async fn handler_profile(
     claims: Claims,
     State(state): State<AppState>,
-) -> Result<Json<ApiResponse<AdminProfileResponse>>, DbError> {
+) -> Result<Json<ApiResponse<UserProfileResponse>>, DbError> {
 
-    let data = admin_service::get_admin_profile(
+    let data = users_service::get_user_profile(
         &state.db_pool,
         claims.sub,
     ).await?;
@@ -67,73 +63,73 @@ pub async fn handler_profile(
 
 
 
-// GET /admins
-pub async fn handler_list_admins(
+// GET /users
+pub async fn handler_list_users(
     _claims: Claims,
     State(state): State<AppState>,
-) -> Result<Json<ApiResponse<Vec<AdminListItem>>>, DbError> {
+) -> Result<Json<ApiResponse<Vec<UserListItem>>>, DbError> {
 
-    let list = admin_service::list_admins(&state.db_pool).await?;
+    let list = users_service::list_users(&state.db_pool).await?;
 
     Ok(Json(ApiResponse::success(list)))
 }
 
 
-// POST /admins
-pub async fn handler_create_admin(
+// POST /users
+pub async fn handler_create_users(
     _claims: Claims,
     State(state): State<AppState>,
-    ValidatedJson(payload): ValidatedJson<CreateAdminPayload>,
-) -> Result<Json<ApiResponse<Admin>>, DbError> {
+    ValidatedJson(payload): ValidatedJson<CreateUserPayload>,
+) -> Result<Json<ApiResponse<User>>, DbError> {
 
-    let admin = service::create_admin(
+    let user = service::create_user(
         &state.db_pool, 
         payload
     ).await?;
 
-    Ok(Json(ApiResponse::success(admin)))
+    Ok(Json(ApiResponse::success(user)))
 }
 
 
-pub async fn handler_get_admin(
+pub async fn handler_get_users(
     claims: Claims,
-    Path(admin_id): Path<i32>,
+    Path(user_id): Path<i32>,
     State(state): State<AppState>,
-) -> Result<Json<ApiResponse<AdminProfileResponse>>, DbError> {
+) -> Result<Json<ApiResponse<UserProfileResponse>>, DbError> {
 
-    let data = admin_service::get_admin(
+    let data = users_service::get_user(
         &state.db_pool,
-        admin_id,
+        user_id,
     ).await?;
 
     Ok(Json(ApiResponse::success(data)))
 }
 
 
-// PATCH /api/admins/:id
-pub async fn handler_update_admin(
+// PATCH /api/users/:id
+pub async fn handler_update_users(
     _claims: Claims, // 🛠️ 鉴权守卫：必须登录才能修改
-    Path(admin_id): Path<i32>,
+    Path(user_id): Path<i32>,
     State(state): State<AppState>,
-    ValidatedJson(payload): ValidatedJson<UpdateAdminPayload>, // 🛠️ 防弹衣：自动触发格式校验
-) -> Result<Json<ApiResponse<Admin>>, DbError> {
+    ValidatedJson(payload): ValidatedJson<UpdateUserPayload>, // 🛠️ 防弹衣：自动触发格式校验
+) -> Result<Json<ApiResponse<User>>, DbError> {
 
-    let admin = service::update_admin(
+    let user = service::update_user(
             &state.db_pool, 
-            admin_id, payload
+            user_id, payload
         ).await?;
 
-    Ok(Json(ApiResponse::success(admin)))
+    Ok(Json(ApiResponse::success(user)))
 }
 
-// DELETE /api/admins/:id
-pub async fn handler_delete_admin(
+// DELETE /api/users/:id
+pub async fn handler_delete_users(
     _claims: Claims, // 🛠️ 鉴权守卫：必须登录才能删除
-    Path(admin_id): Path<i32>,
+    Path(user_id): Path<i32>,
     State(state): State<AppState>,
 ) -> Result<Json<ApiResponse<()>>, DbError> {
 
-    service::delete_admin(&state.db_pool, admin_id).await?;
+    service::delete_user(&state.db_pool, user_id).await?;
 
     Ok(Json(ApiResponse::success(())))
 }
@@ -240,46 +236,4 @@ pub async fn handler_get_article(
     let data = service::get_article_by_id(&state.db_pool, id).await?;
     Ok(Json(ApiResponse::success(data)))
 }
-
-
-// GET /users/:id
-pub async fn handler_get_user(
-    Path(user_id): Path<i32>,
-    State(state): State<AppState>,
-) -> Result<Json<ApiResponse<User>>, DbError> {
-
-    let user = db::get_user_by_id(&state.db_pool, user_id).await?;
-
-    Ok(Json(ApiResponse::success(user)))
-}
-
-// POST /users
-pub async fn handler_create_user(
-    State(state): State<AppState>,
-    Json(payload): Json<CreateUserPayload>, // 👈 自动反序列化请求体的 JSON
-) -> Result<Json<ApiResponse<User>>, DbError> {
-    
-    let user = db::create_user(&state.db_pool, &payload).await?;
-    Ok(Json(ApiResponse::success(user)))
-}
-
-// PATCH  /users/:id
-pub async fn handler_patch_user(
-    Path(user_id): Path<i32>,
-    State(state): State<AppState>,
-    Json(payload): Json<UpdateUserPayload>,
-) -> Result<Json<ApiResponse<User>>, DbError> {
-    let user = db::update_user(&state.db_pool, user_id, &payload).await?;
-    Ok(Json(ApiResponse::success(user)))
-}
-
-// DELETE /users/:id
-pub async fn handler_delete_user(
-    Path(user_id): Path<i32>,
-    State(state): State<AppState>,
-) -> Result<Json<ApiResponse<()>>, DbError> {
-    db::delete_user(&state.db_pool, user_id).await?;
-    Ok(Json(ApiResponse::success(())))
-}
-
 

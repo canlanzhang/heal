@@ -6,7 +6,7 @@ use crate::dto::menu::MenuItem;
 use crate::dto::utils::empty_string_as_none;
 
 #[derive(Debug, Serialize)]
-pub struct AdminListItem {
+pub struct UserListItem {
     pub id: i32,
     pub username: String,
     pub email: Option<String>,
@@ -14,7 +14,7 @@ pub struct AdminListItem {
 }
 
 #[derive(Deserialize, Validate)]
-pub struct CreateAdminPayload {
+pub struct CreateUserPayload {
     #[validate(length(min = 3, max= 16))]
     pub username: String,
     #[validate(email)]
@@ -24,7 +24,7 @@ pub struct CreateAdminPayload {
 }
 
 #[derive(Debug, Deserialize, validator::Validate)]
-pub struct UpdateAdminPayload {
+pub struct UpdateUserPayload {
 
     #[serde(default, deserialize_with = "empty_string_as_none")]
     #[validate(length(min = 3, max = 16))]
@@ -44,7 +44,7 @@ pub struct UpdateAdminPayload {
 
 
 #[derive(Serialize)]
-pub struct AdminInfo {
+pub struct UserInfo {
     pub id: i32,
     pub username: String,
     pub email: Option<String>,
@@ -52,8 +52,8 @@ pub struct AdminInfo {
 }
 
 #[derive(Serialize)]
-pub struct AdminProfileResponse  {
-    pub admin: AdminInfo,
+pub struct UserProfileResponse  {
+    pub user: UserInfo,
     pub menus: Vec<MenuItem>,
 }
 
