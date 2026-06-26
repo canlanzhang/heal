@@ -66,9 +66,13 @@ CREATE TABLE heal_article (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+
+
+
+
 --- 下面是自动更新 updated_at 的“魔法”代码 ---
-/* 
--- 3. 创建一个通用的函数，用来自动更新时间
+
+创建一个通用的函数，用来自动更新时间
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -77,15 +81,19 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- 4. 给 users 表绑定这个自动更新功能
+
 CREATE TRIGGER update_users_updated_at 
-    BEFORE UPDATE ON users 
+    BEFORE UPDATE ON heal_users 
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
 
--- 5. 给 todos 表绑定这个自动更新功能
-CREATE TRIGGER update_todos_updated_at 
-    BEFORE UPDATE ON todos 
+CREATE TRIGGER update_users_updated_at 
+    BEFORE UPDATE ON heal_menus 
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
-    */
+
+CREATE TRIGGER update_todos_updated_at 
+    BEFORE UPDATE ON heal_article 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+    
