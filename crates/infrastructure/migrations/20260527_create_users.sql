@@ -19,6 +19,9 @@ CREATE TABLE IF NOT EXISTS heal_users (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+--密码: 123123
+INSERT INTO heal_users (username,email,password_hash,role) VALUES 
+('admin','admin@admin.com','$2b$12$Jqe0CHNXvKlWIqbm6WUht.wgTuYwhHFkB0YPJhcQGYoreDqdlv312','admin');
 
 -- 2. 创建待办事项表
 CREATE TABLE IF NOT EXISTS todos (
