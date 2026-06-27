@@ -14,7 +14,7 @@ pub async fn get_menus_by_role(
 ) -> Result<Vec<MenuItem>, DbError> {
 
     let role = if role.trim().is_empty() {
-        "admin"
+        "super_admin"
     } else {
         role
     };

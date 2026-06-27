@@ -6,28 +6,28 @@ import { ro } from 'element-plus/es/locales.mjs'
 console.log('🔥 guard loaded')
 
 router.beforeEach(async (to, from, next) => {
-  
+  console.log('🔥 beforeEach')
   const store = useUserStore()
   const token = store.token || localStorage.getItem('token')
-console.log("toekn:  "+ token)
-  console.log('🚦 guard:', to.path)
+
+  console.log('🚦 guard to.path:', to.path)
 
   // ❌ 1. 未登录直接去 login
   if (!store.authReady && to.path != '/login') {
     console.log("未登录")
-    console.log(store.authReady)
-    console.log(to.path)
-    console.log("去login登录")
+    //console.log(store.authReady)
+    //console.log(to.path)
     return next('/login')
   }
   
-  console.log("toekn:  "+ token)
+
   if(token && !store.routesInited)
   {
     console.log("已登录")
     await store.fetchProfile()
     await bootstrap()
     store.routesInited = true
+    console.log("已登录routesInited："+store.routesInited);
     return next('/dashboard')
   }
 
@@ -62,6 +62,6 @@ console.log("toekn:  "+ token)
     }
   }
 */
-  console.log("next() ")
+
   next()
 })

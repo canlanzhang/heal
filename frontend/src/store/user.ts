@@ -12,6 +12,7 @@ export const useUserStore = defineStore('user', {
     user: null,
     menus: [],
     routesInited: false,
+    hasInitRoutes : false
     // : false
   }),
 
@@ -21,7 +22,7 @@ export const useUserStore = defineStore('user', {
       localStorage.setItem('token', token)
     },
     setAuthReady(authReady: boolean) {
-      console.log("setAuthReady"+authReady)
+      console.log("setAuthReady: "+authReady)
       this.authReady = authReady
       localStorage.setItem('authReady', JSON.stringify(authReady))
     },
@@ -71,6 +72,7 @@ export const useUserStore = defineStore('user', {
       
       this.menus = res.data.menus
       this.user = res.data.user
+      console.log("fetchProfile(): "+res)
       return res.data
     }
   }

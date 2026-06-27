@@ -13,11 +13,15 @@ export async function bootstrap() {
     console.log('🔥 bootstrap START')
 
     // ❗防重复执行
-    if (store.hasInitRoutes) return
+    if (store.hasInitRoutes) {
+      resolve()
+      return
+    }
 
     // ❗必须有菜单
     if (!store.menus || store.menus.length === 0) {
       console.warn('❌ no menus, skip bootstrap')
+      resolve()  // ← 必须 resolve，否则调用方永远等待
       return
     }
 

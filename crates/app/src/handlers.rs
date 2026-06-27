@@ -1,8 +1,8 @@
 use axum::{
     Json, 
-    http::StatusCode,
+
     extract::{Path, State}, 
-    response::IntoResponse
+
 };
 
 
@@ -10,7 +10,7 @@ use axum::{
 use crate::state::AppState; 
 use infrastructure::dto::users::{
     UserProfileResponse,
-    UserInfo,
+
 };
 
 use infrastructure::dto::auth::{
@@ -20,7 +20,6 @@ use infrastructure::dto::auth::{
 };
 
 use infrastructure::{
-    db, 
     entity::{
         User,
         Menu,
@@ -31,11 +30,9 @@ use infrastructure::{
 
 }; // 引入底层的基础设施和连接池
 use infrastructure::dto::*;
-use serde::{Serialize, Deserialize};
-use bcrypt::{hash,DEFAULT_COST,verify, BcryptError};
 //use infrastructure::service::login;
 use infrastructure::service;
-use infrastructure::service::{users_service,auth_service};
+use infrastructure::service::{users_service};
 
 pub async fn handler_login(
     State(state): State<AppState>,
@@ -92,7 +89,7 @@ pub async fn handler_create_users(
 
 
 pub async fn handler_get_users(
-    claims: Claims,
+    _claims: Claims,
     Path(user_id): Path<i32>,
     State(state): State<AppState>,
 ) -> Result<Json<ApiResponse<UserProfileResponse>>, DbError> {

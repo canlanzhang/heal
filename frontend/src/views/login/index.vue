@@ -55,8 +55,7 @@ const handleLogin = async () => {
     const res = await loginApi(form)
     const token = res?.data?.token
     //const username = res?.data?.username
-    console.log("login token:" + token)
-    console.log("!token: "+!token)
+
 
     if (!token) {
       ElMessage.error('token 获取失败')

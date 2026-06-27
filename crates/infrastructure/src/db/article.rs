@@ -27,7 +27,7 @@ pub async fn list_articles(pool: &PgPool) -> Result<Vec<Article>, DbError> {
 
 pub async fn create_article(
     pool: &PgPool,
-    payload: &crate::dto::article::CreateArticlePayload,
+    payload: &CreateArticlePayload,
     author_id: i32,
 ) -> Result<Article, DbError> {
 

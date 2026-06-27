@@ -23,12 +23,12 @@ async function start() {
 
   app.use(router)
 
-    if(token){
+    if(token && authReady){
     store.setToken(token)
     store.setAuthReady(authReady)
     //await store.fetchProfile()
     //await bootstrap()
-    console.log("mm:  "+store.menus)
+    console.log("hasInitRoutes:  "+store.hasInitRoutes)
   }
 
   app.use(ElementPlus)
