@@ -65,7 +65,8 @@ const handleLogin = async () => {
 
     // 1️⃣ 存 token
     store.setToken(token)
-    store.authReady = true
+
+    store.setAuthReady(true)
     //store.setUserName(username)
     //console.log("用户名： "+ username)
 

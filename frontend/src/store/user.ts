@@ -1,5 +1,5 @@
 
-import { defineStore } from 'pinia'
+import { defineStore, storeToRefs } from 'pinia'
 import { getProfileApi } from '@/api/auth'
 import router from '@/router'
 export const useUserStore = defineStore('user', {
@@ -19,6 +19,11 @@ export const useUserStore = defineStore('user', {
     setToken(token: string) {
       this.token = token
       localStorage.setItem('token', token)
+    },
+    setAuthReady(authReady: boolean) {
+      console.log("setAuthReady"+authReady)
+      this.authReady = authReady
+      localStorage.setItem('authReady', JSON.stringify(authReady))
     },
 
     setUserName(username: string) {

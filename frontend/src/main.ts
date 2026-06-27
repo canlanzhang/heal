@@ -19,14 +19,16 @@ async function start() {
 
   const store = useUserStore(pinia)
   const token = localStorage.getItem('token')
+  const authReady = localStorage.getItem('authReady') === 'true'
 
   app.use(router)
 
     if(token){
     store.setToken(token)
+    store.setAuthReady(authReady)
     //await store.fetchProfile()
     //await bootstrap()
-    console.log("mm"+store.menus)
+    console.log("mm:  "+store.menus)
   }
 
   app.use(ElementPlus)

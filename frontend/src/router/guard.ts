@@ -15,6 +15,9 @@ console.log("toekn:  "+ token)
   // ❌ 1. 未登录直接去 login
   if (!store.authReady && to.path != '/login') {
     console.log("未登录")
+    console.log(store.authReady)
+    console.log(to.path)
+    console.log("去login登录")
     return next('/login')
   }
   
@@ -25,7 +28,7 @@ console.log("toekn:  "+ token)
     await store.fetchProfile()
     await bootstrap()
     store.routesInited = true
-
+    return next('/dashboard')
   }
 
   
