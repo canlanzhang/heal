@@ -28,7 +28,8 @@ router.beforeEach(async (to, from, next) => {
     await bootstrap()
     store.routesInited = true
     console.log("已登录routesInited："+store.routesInited);
-    return next('/dashboard')
+    return next({ ...to, replace: true })  // ← 不要写死 '/dashboard'，回到用户原来要去的页面
+    //return next('/dashboard')
   }
 
   
