@@ -1,20 +1,22 @@
-
-
 use serde::{Deserialize, Deserializer};
 
-/// 自定义反序列化器：将空字符串或纯空格字符串转换为 None
+/// 通用版本：将空字符串转为 None (仅针对 String)
 pub fn empty_string_as_none<'de, D>(
     deserializer: D,
 ) -> Result<Option<String>, D::Error>
 where
     D: Deserializer<'de>,
 {
-    // 先尝试反序列化为 Option<String>
     let opt = Option::<String>::deserialize(deserializer)?;
-
-    // 如果存在，则检查 trim 后是否为空；如果不存在，直接返回 None
-    Ok(opt
-        .map(|s| s.trim().to_string())
-        .filter(|s| !s.is_empty())
-    )
+    Ok(opt.and_then(|s| {
+        let trimmed = s.trim();
+        if trimmed.is_empty() {
+            None
+        } else {
+            Some(trimmed.to_string())
+        }
+    }))
 }
+
+// 扩展思路：如果是数字类型，通常需要另一个函数，因为数字不能直接 trim
+// pub fn empty_str_as_none_u64<'de, D>(deserializer: D) -> Result<Option<u64>, D::Error> ...
