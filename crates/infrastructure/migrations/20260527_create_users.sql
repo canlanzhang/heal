@@ -53,10 +53,10 @@ CREATE TABLE IF NOT EXISTS heal_menus (
 );
 
 INSERT INTO heal_menus (name, path, title, icon, role, sort) VALUES
-('dashboard', '/dashboard', '控制台', 'Dome', 'admin', 1),
-('users', '/users', '用户管理', 'UserCog', 'admin', 2),
-('articles', '/articles', '内容管理', 'FileText', 'admin', 3),
-('menus', '/menus', '菜单管理', 'Menus', 'admin', 4);
+('dashboard', '/dashboard', '控制台', 'Dome', 'super_admin', 1),
+('users', '/users', '用户管理', 'UserCog', 'super_admin', 2),
+('articles', '/articles', '内容管理', 'FileText', 'super_admin', 3),
+('menus', '/menus', '菜单管理', 'Menus', 'super_admin', 4);
 
 CREATE TABLE heal_articles (
     id SERIAL PRIMARY KEY,
@@ -95,7 +95,7 @@ CREATE TRIGGER update_users_updated_at
     EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_todos_updated_at 
-    BEFORE UPDATE ON heal_article 
+    BEFORE UPDATE ON heal_articles 
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
     

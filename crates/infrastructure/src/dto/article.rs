@@ -1,7 +1,7 @@
 
 use serde::{Serialize, Deserialize};
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct ArticleListItem {
     pub id: i32,
     pub title: String,

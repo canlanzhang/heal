@@ -2,6 +2,7 @@ use sqlx::PgPool;
 
 use crate::db;
 
+use crate::dto::ArticleListItem;
 use crate::errors::DbError;
 
 
@@ -13,18 +14,17 @@ use crate::{
     entity::Article,
 };
 
-pub async fn list_articles(pool: &PgPool) -> Result<Vec<Article>, DbError> {
-    let res = sqlx::query_as!(
-        Article,
-        r#"
-        SELECT id, title, content, status, author_id
-        FROM heal_article
-        ORDER BY id DESC
-        "#
-    )
-    .fetch_all(pool)
-    .await
-    .map_err(DbError::Sql)?;
+pub async fn list_articles(
+    pool: &PgPool
+) -> Result<Vec<ArticleListItem>, DbError> {
+    let articles = db::article::list_articles(pool).await?;
+
+    let res = articles.into_iter().map(|a|ArticleListItem{
+        id: a.id,
+        title: a.title,
+        status: a.status,
+        author_id: a.author_id,
+    }).collect();
 
     Ok(res)
 }

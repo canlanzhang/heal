@@ -179,7 +179,7 @@ pub async fn handler_delete_menu(
 pub async fn handler_list_articles(
     _claims: Claims, // 🛠️ 鉴权守卫：必须登录才能删除
     State(state): State<AppState>,
-) -> Result<Json<ApiResponse<Vec<Article>>>, DbError> {
+) -> Result<Json<ApiResponse<Vec<ArticleListItem>>>, DbError> {
     
     let articles = service::list_articles(&state.db_pool).await?;
 

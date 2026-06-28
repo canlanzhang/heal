@@ -46,14 +46,14 @@ pub async fn list_users(
 
     let users = db::user::list_users(pool).await?;
 
-    let result = users.into_iter().map(|a| UserListItem {
+    let res = users.into_iter().map(|a| UserListItem {
         id: a.id,
         username: a.username,
         email: a.email,
         role: a.role,
     }).collect();
 
-    Ok(result)
+    Ok(res)
 }
 
 pub async fn create_user(
