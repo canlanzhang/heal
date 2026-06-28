@@ -1,13 +1,13 @@
-pub mod user;
-pub mod menu;
-pub mod article;
+pub mod users;
+pub mod menus;
+pub mod articles;
 pub mod pool;
 
 // ===== 对外导出 =====
 
 pub use pool::create_pool;
 
-pub use user::{
+pub use users::{
     create_user,
     update_user,
     delete_user,
@@ -16,5 +16,5 @@ pub use user::{
     query_user_for_login,
 
 };
-pub use menu::*;
-pub use article::*;
+pub use menus::*;
+pub use articles::*;

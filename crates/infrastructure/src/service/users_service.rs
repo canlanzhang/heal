@@ -44,7 +44,7 @@ pub async fn list_users(
     pool: &PgPool,
 ) -> Result<Vec<UserListItem>, DbError> {
 
-    let users = db::user::list_users(pool).await?;
+    let users = db::users::list_users(pool).await?;
 
     let res = users.into_iter().map(|a| UserListItem {
         id: a.id,

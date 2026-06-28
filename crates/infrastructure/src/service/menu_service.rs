@@ -1,6 +1,6 @@
 use sqlx::PgPool;
 use crate::db;
-use crate::dto::menu::*;
+use crate::dto::menus::*;
 use crate::entity::Menu;
 use crate::errors::DbError;
 
@@ -31,7 +31,7 @@ pub async fn create_menu(
 
 
 pub async fn get_menu(pool: &PgPool, id: i32) -> Result<Menu, DbError> {
-    db::menu::get_menu_by_id(pool, id).await
+    db::menus::get_menu_by_id(pool, id).await
 }
 
 pub async fn update_menu(
@@ -39,11 +39,11 @@ pub async fn update_menu(
     id: i32,
     payload: UpdateMenuPayload,
 ) -> Result<(), DbError> {
-    db::menu::update_menu(pool, id, payload).await
+    db::menus::update_menu(pool, id, payload).await
 }
 
 pub async fn delete_menu(pool: &PgPool, id: i32) -> Result<(), DbError> {
-    db::menu::delete_menu(pool, id).await
+    db::menus::delete_menu(pool, id).await
 }
 
 

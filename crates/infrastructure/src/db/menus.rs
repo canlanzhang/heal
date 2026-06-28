@@ -1,5 +1,5 @@
 use sqlx::PgPool;
-use crate::dto::menu::*;
+use crate::dto::menus::*;
 use crate::entity::Menu;
 use crate::errors::DbError;
 

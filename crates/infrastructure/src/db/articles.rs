@@ -1,7 +1,7 @@
 
 
 use crate::entity::{Article};
-use crate::dto::article::{
+use crate::dto::articles::{
     CreateArticlePayload,
     UpdateArticlePayload,
 };
