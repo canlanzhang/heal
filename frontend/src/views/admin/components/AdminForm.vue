@@ -81,7 +81,7 @@ const openCreate = () => {
 const openEdit = async (id: number) => {
   const res = await getAdminById(id)
   console.dir(res.data);
-  Object.assign(form, res.data.admin)
+  Object.assign(form, res.data.user)
   form.password = '' // 不回显密码
   visible.value = true
 }
