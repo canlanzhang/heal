@@ -51,6 +51,7 @@ export const useUserStore = defineStore('user', {
 
       // 4️⃣ 跳转登录
       router.push('/login')
+      window.location.reload() 
     },
 
     resetRouter() {

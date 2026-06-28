@@ -24,9 +24,16 @@ router.beforeEach(async (to, from, next) => {
   if(token && !store.routesInited)
   {
     console.log("已登录")
+    console.log(router.options.routes) // 查看原始路由配置
+console.log('🔥 ALL ROUTERS:', router.getRoutes())
     await store.fetchProfile()
     await bootstrap()
     store.routesInited = true
+
+    
+
+
+
     console.log("已登录routesInited："+store.routesInited);
     return next({ ...to, replace: true })  // ← 不要写死 '/dashboard'，回到用户原来要去的页面
     //return next('/dashboard')
