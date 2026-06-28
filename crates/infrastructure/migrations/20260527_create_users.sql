@@ -54,12 +54,11 @@ CREATE TABLE IF NOT EXISTS heal_menus (
 
 INSERT INTO heal_menus (name, path, title, icon, role, sort) VALUES
 ('dashboard', '/dashboard', '控制台', 'Dome', 'admin', 1),
-('admin', '/admin', '管理员管理', 'UserCog', 'admin', 2),
-('article', '/article', '内容管理', 'FileText', 'admin', 3),
-('user', '/user', '用户管理', 'Users', 'admin', 4),
-('menu', '/menu', '菜单管理', 'Menu', 'admin', 5);
+('users', '/users', '用户管理', 'UserCog', 'admin', 2),
+('articles', '/articles', '内容管理', 'FileText', 'admin', 3),
+('menus', '/menus', '菜单管理', 'Menus', 'admin', 4);
 
-CREATE TABLE heal_article (
+CREATE TABLE heal_articles (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     content TEXT NOT NULL,
