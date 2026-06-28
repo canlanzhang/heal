@@ -5,22 +5,21 @@ use axum::{
 
 use crate::state::AppState; 
 
-use infrastructure::dto::users::{
-    UserProfileResponse,
-
-};
-
-use infrastructure::dto::auth::{
-    LoginRequest,
-    LoginResponse,
-    Claims,
-};
-
 use infrastructure::{
-    service,
-    service::users_service,
-dto::*,
-    errors::*,
+    service::{
+        auth_service,
+        users_service,
+    },
+    dto::{
+        auth::{
+            LoginRequest,
+            LoginResponse,
+            Claims,
+        },
+        users::UserProfileResponse,
+        ApiResponse,
+    },
+    errors::DbError,
 
 }; // 引入底层的基础设施和连接池
 
@@ -30,7 +29,7 @@ pub async fn login(
     Json(payload): Json<LoginRequest>,
 ) -> Result<Json<ApiResponse<LoginResponse>>,DbError> {
 
-    let res = service::login(&state.db_pool, payload).await?;
+    let res = auth_service::login(&state.db_pool, payload).await?;
 
     Ok(Json(ApiResponse::success(res)))
     
