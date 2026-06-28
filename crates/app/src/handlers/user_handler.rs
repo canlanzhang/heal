@@ -5,8 +5,6 @@ use axum::{
 
 };
 
-
-
 use crate::state::AppState; 
 use infrastructure::dto::users::{
     UserProfileResponse,
@@ -19,6 +17,8 @@ use infrastructure::dto::auth::{
 };
 
 use infrastructure::{
+    dto::*,
+    service::users_service,
     entity::{
         User,
 
@@ -26,10 +26,7 @@ use infrastructure::{
     errors::*,
 
 }; // 引入底层的基础设施和连接池
-use infrastructure::dto::*;
-//use infrastructure::service::login;
-use infrastructure::service;
-use infrastructure::service::{users_service};
+
 
 
 
@@ -53,7 +50,7 @@ pub async fn create_user(
     ValidatedJson(payload): ValidatedJson<CreateUserPayload>,
 ) -> Result<Json<ApiResponse<User>>, DbError> {
 
-    let user = service::create_user(
+    let user = users_service::create_user(
         &state.db_pool, 
         payload
     ).await?;
@@ -85,7 +82,7 @@ pub async fn update_user(
     ValidatedJson(payload): ValidatedJson<UpdateUserPayload>, // 🛠️ 防弹衣：自动触发格式校验
 ) -> Result<Json<ApiResponse<User>>, DbError> {
 
-    let user = service::update_user(
+    let user = users_service::update_user(
             &state.db_pool, 
             user_id, payload
         ).await?;
@@ -100,7 +97,7 @@ pub async fn delete_user(
     State(state): State<AppState>,
 ) -> Result<Json<ApiResponse<()>>, DbError> {
 
-    service::delete_user(&state.db_pool, user_id).await?;
+    users_service::delete_user(&state.db_pool, user_id).await?;
 
     Ok(Json(ApiResponse::success(())))
 }
