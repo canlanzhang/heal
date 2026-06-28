@@ -35,7 +35,7 @@ use infrastructure::service::{users_service};
 
 
 // GET /users
-pub async fn handler_list_users(
+pub async fn list_users(
     _claims: Claims,
     State(state): State<AppState>,
 ) -> Result<Json<ApiResponse<Vec<UserListItem>>>, DbError> {
@@ -47,7 +47,7 @@ pub async fn handler_list_users(
 
 
 // POST /users
-pub async fn handler_create_user(
+pub async fn create_user(
     _claims: Claims,
     State(state): State<AppState>,
     ValidatedJson(payload): ValidatedJson<CreateUserPayload>,
@@ -62,7 +62,7 @@ pub async fn handler_create_user(
 }
 
 
-pub async fn handler_get_user(
+pub async fn get_user(
     _claims: Claims,
     Path(user_id): Path<i32>,
     State(state): State<AppState>,
@@ -78,7 +78,7 @@ pub async fn handler_get_user(
 
 
 // PATCH /api/users/:id
-pub async fn handler_update_user(
+pub async fn update_user(
     _claims: Claims, // 🛠️ 鉴权守卫：必须登录才能修改
     Path(user_id): Path<i32>,
     State(state): State<AppState>,
@@ -94,7 +94,7 @@ pub async fn handler_update_user(
 }
 
 // DELETE /api/users/:id
-pub async fn handler_delete_user(
+pub async fn delete_user(
     _claims: Claims, // 🛠️ 鉴权守卫：必须登录才能删除
     Path(user_id): Path<i32>,
     State(state): State<AppState>,

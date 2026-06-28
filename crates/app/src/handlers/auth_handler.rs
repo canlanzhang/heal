@@ -29,7 +29,7 @@ use infrastructure::dto::*;
 use infrastructure::service;
 use infrastructure::service::{users_service};
 
-pub async fn handler_login(
+pub async fn login(
     State(state): State<AppState>,
     Json(payload): Json<LoginRequest>,
 ) -> Result<Json<ApiResponse<LoginResponse>>,DbError> {
@@ -40,7 +40,7 @@ pub async fn handler_login(
     
 }
 
-pub async fn handler_profile(
+pub async fn profile(
     claims: Claims,
     State(state): State<AppState>,
 ) -> Result<Json<ApiResponse<UserProfileResponse>>, DbError> {

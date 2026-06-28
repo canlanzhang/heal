@@ -26,7 +26,7 @@ use infrastructure::service;
 
 
 
-pub async fn handler_list_menus(
+pub async fn list_menus(
     State(state): State<AppState>,
 ) -> Result<Json<ApiResponse<Vec<MenuItem>>>, DbError> {
 
@@ -35,7 +35,7 @@ pub async fn handler_list_menus(
     Ok(Json(ApiResponse::success(menus)))
 }
 
-pub async fn handler_create_menu(
+pub async fn create_menu(
     State(state): State<AppState>,
     Json(payload): Json<CreateMenuPayload>,
 ) -> Result<Json<ApiResponse<()>>, DbError> {
@@ -43,7 +43,7 @@ pub async fn handler_create_menu(
     Ok(Json(ApiResponse::success(())))
 }
 
-pub async fn handler_get_menu(
+pub async fn get_menu(
     State(state): State<AppState>,
     Path(id): Path<i32>,
 ) -> Result<Json<ApiResponse<Menu>>, DbError> {
@@ -52,7 +52,7 @@ pub async fn handler_get_menu(
 }
 
 
-pub async fn handler_update_menu(
+pub async fn update_menu(
     State(state): State<AppState>,
     Path(id): Path<i32>,
     Json(payload): Json<UpdateMenuPayload>,
@@ -61,7 +61,7 @@ pub async fn handler_update_menu(
     Ok(Json(ApiResponse::success(())))
 }
 
-pub async fn handler_delete_menu(
+pub async fn delete_menu(
     State(state): State<AppState>,
     Path(id): Path<i32>,
 ) -> Result<Json<ApiResponse<()>>, DbError> {

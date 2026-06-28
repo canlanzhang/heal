@@ -30,7 +30,7 @@ use infrastructure::service;
 
 
 
-pub async fn handler_list_articles(
+pub async fn list_articles(
     _claims: Claims, // 🛠️ 鉴权守卫：必须登录才能删除
     State(state): State<AppState>,
 ) -> Result<Json<ApiResponse<Vec<ArticleListItem>>>, DbError> {
@@ -40,7 +40,7 @@ pub async fn handler_list_articles(
     Ok(Json(ApiResponse::success(articles)))
 }
 
-pub async fn handler_create_article(
+pub async fn create_article(
     claims: Claims,
     State(state): State<AppState>,
     Json(payload): Json<CreateArticlePayload>,
@@ -56,7 +56,7 @@ pub async fn handler_create_article(
 }
 
 
-pub async fn handler_update_article(
+pub async fn update_article(
     _claims: Claims,
     Path(id): Path<i32>,
     State(state): State<AppState>,
@@ -68,7 +68,7 @@ pub async fn handler_update_article(
     Ok(Json(ApiResponse::success(data)))
 }
 
-pub async fn handler_delete_article(
+pub async fn delete_article(
     _claims: Claims,
     Path(id): Path<i32>,
     State(state): State<AppState>,
@@ -79,7 +79,7 @@ pub async fn handler_delete_article(
 }
 
 
-pub async fn handler_get_article(
+pub async fn get_article(
     State(state): State<AppState>,
     Path(id): Path<i32>,
 ) -> Result<Json<ApiResponse<Article>>, DbError> {
