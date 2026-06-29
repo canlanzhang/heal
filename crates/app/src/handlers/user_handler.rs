@@ -50,12 +50,13 @@ pub async fn create_user(
     _claims: Claims,
     State(state): State<AppState>,
     ValidatedJson(payload): ValidatedJson<CreateUserPayload>,
-) -> Result<Json<ApiResponse<User>>, DbError> {
+) -> Result<Json<ApiResponse<User>>, AppError> {
 
     let user = users_service::create_user(
         &state.db_pool, 
         payload
-    ).await?;
+    ).await
+    .map_err(ApiError::from)?;
 
     Ok(Json(ApiResponse::success(user)))
 }
@@ -65,12 +66,13 @@ pub async fn get_user(
     _claims: Claims,
     Path(user_id): Path<i32>,
     State(state): State<AppState>,
-) -> Result<Json<ApiResponse<UserProfileResponse>>, DbError> {
+) -> Result<Json<ApiResponse<UserProfileResponse>>, AppError> {
 
     let data = users_service::get_user(
         &state.db_pool,
         user_id,
-    ).await?;
+    ).await
+    .map_err(ApiError::from)?;
 
     Ok(Json(ApiResponse::success(data)))
 }
@@ -82,24 +84,27 @@ pub async fn update_user(
     Path(user_id): Path<i32>,
     State(state): State<AppState>,
     ValidatedJson(payload): ValidatedJson<UpdateUserPayload>, // 🛠️ 防弹衣：自动触发格式校验
-) -> Result<Json<ApiResponse<User>>, DbError> {
+) -> Result<Json<ApiResponse<User>>, AppError> {
 
     let user = users_service::update_user(
             &state.db_pool, 
             user_id, payload
-        ).await?;
+        ).await
+        .map_err(ApiError::from)?;
 
     Ok(Json(ApiResponse::success(user)))
 }
 
 // DELETE /api/users/:id
 pub async fn delete_user(
-    _claims: Claims, // 🛠️ 鉴权守卫：必须登录才能删除
+    claims: Claims, // 🛠️ 鉴权守卫：必须登录才能删除
     Path(user_id): Path<i32>,
     State(state): State<AppState>,
-) -> Result<Json<ApiResponse<()>>, DbError> {
+) -> Result<Json<ApiResponse<()>>, AppError> {
 
-    users_service::delete_user(&state.db_pool, user_id).await?;
+    users_service::delete_user(&state.db_pool, user_id,claims.sub
+    ).await
+    .map_err(ApiError::from)?;
 
     Ok(Json(ApiResponse::success(())))
 }

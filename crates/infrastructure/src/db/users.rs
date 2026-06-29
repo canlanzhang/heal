@@ -31,6 +31,7 @@ pub async fn list_users(pool: &PgPool) -> Result<Vec<User>, DbError> {
 pub async fn create_user(
     pool: &PgPool,
     payload: &CreateUserPayload,
+    password_hash: &str,
 ) -> Result<User, DbError> {
     let user = sqlx::query_as!(
         User,
@@ -51,7 +52,7 @@ pub async fn create_user(
         "#,
         payload.username,
         payload.email,
-        payload.password,
+        password_hash,
         payload.role
     )
     .fetch_one(pool)
@@ -74,6 +75,7 @@ pub async fn update_user(
     pool: &PgPool,
     user_id: i32,
     payload: &UpdateUserPayload,
+    password_hash: Option<&str>,
 ) -> Result<User, DbError> {
     let user = sqlx::query_as!(
         User,
@@ -94,7 +96,7 @@ pub async fn update_user(
         "#,
         payload.username,
         payload.email,
-        payload.password,
+        password_hash,
         payload.role,
         user_id
     )
