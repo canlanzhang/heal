@@ -7,7 +7,7 @@ use crate::state::AppState;
 
 use infrastructure::{
     entity::Article, 
-    service,
+    service::articles_service,
     dto::*,
     dto::auth::Claims,
     errors::*,
@@ -18,9 +18,12 @@ use infrastructure::{
 pub async fn list_articles(
     _claims: Claims, // 🛠️ 鉴权守卫：必须登录才能删除
     State(state): State<AppState>,
-) -> Result<Json<ApiResponse<Vec<ArticleListItem>>>, DbError> {
+) -> Result<Json<ApiResponse<Vec<ArticleListItem>>>, AppError> {
     
-    let articles = service::list_articles(&state.db_pool).await?;
+    let articles = articles_service::list_articles(
+        &state.db_pool
+    ).await
+    .map_err(ApiError::from)?;
 
     Ok(Json(ApiResponse::success(articles)))
 }
@@ -29,13 +32,14 @@ pub async fn create_article(
     claims: Claims,
     State(state): State<AppState>,
     Json(payload): Json<CreateArticlePayload>,
-) -> Result<Json<ApiResponse<Article>>, DbError> {
+) -> Result<Json<ApiResponse<Article>>, AppError> {
 
-    let data = service::create_article(
+    let data = articles_service::create_article(
         &state.db_pool,
         payload,
         claims.sub,
-    ).await?;
+    ).await
+    .map_err(ApiError::from)?;
 
     Ok(Json(ApiResponse::success(data)))
 }
@@ -46,10 +50,14 @@ pub async fn update_article(
     Path(id): Path<i32>,
     State(state): State<AppState>,
     Json(payload): Json<UpdateArticlePayload>,
-) -> Result<Json<ApiResponse<Article>>, DbError> {
+) -> Result<Json<ApiResponse<Article>>, AppError> {
 
-    let data = service::update_article(&state.db_pool, id, payload).await?;
-
+    let data = articles_service::update_article(
+        &state.db_pool, 
+        id, 
+        payload
+    ).await
+    .map_err(ApiError::from)?;
     Ok(Json(ApiResponse::success(data)))
 }
 
@@ -57,9 +65,13 @@ pub async fn delete_article(
     _claims: Claims,
     Path(id): Path<i32>,
     State(state): State<AppState>,
-) -> Result<Json<ApiResponse<()>>, DbError> {
+) -> Result<Json<ApiResponse<()>>, AppError> {
 
-    service::delete_article(&state.db_pool, id).await?;
+    articles_service::delete_article(
+        &state.db_pool, 
+        id
+    ).await
+    .map_err(ApiError::from)?;
     Ok(Json(ApiResponse::success(())))
 }
 
@@ -67,9 +79,13 @@ pub async fn delete_article(
 pub async fn get_article(
     State(state): State<AppState>,
     Path(id): Path<i32>,
-) -> Result<Json<ApiResponse<Article>>, DbError> {
+) -> Result<Json<ApiResponse<Article>>, AppError> {
 
-    let data = service::get_article_by_id(&state.db_pool, id).await?;
+    let data = articles_service::get_article_by_id(
+        &state.db_pool, 
+        id
+    ).await
+    .map_err(ApiError::from)?;
     Ok(Json(ApiResponse::success(data)))
 }
 

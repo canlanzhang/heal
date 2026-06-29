@@ -5,7 +5,7 @@ use crate::entity::Menu;
 use crate::errors::DbError;
 
 pub async fn list_menus(pool: &PgPool) -> Result<Vec<MenuItem>, DbError> {
-    db::list_menus(pool).await
+    db::menus::list_menus(pool).await
 }
 
 pub async fn get_menus_by_role(
@@ -19,14 +19,14 @@ pub async fn get_menus_by_role(
         role
     };
 
-    db::get_menus_by_role(pool, role).await
+    db::menus::get_menus_by_role(pool, role).await
 }
 
 pub async fn create_menu(
     pool: &PgPool,
     payload: CreateMenuPayload,
 ) -> Result<(), DbError> {
-    db::create_menu(pool, payload).await
+    db::menus::create_menu(pool, payload).await
 }
 
 
