@@ -2,9 +2,7 @@ use axum::{
     extract::{State}, 
     Json,     
 };
-
 use crate::state::AppState; 
-
 use infrastructure::{
     service::{auth_service, users_service },
     dto::{
@@ -12,37 +10,31 @@ use infrastructure::{
         users::UserProfileResponse,
         ApiResponse,
     },
-    errors::{ApiError, AuthError},
+    errors::{AppError, ApiError},
+}; 
 
-}; // 引入底层的基础设施和连接池
-
-
+// 登录接口
 pub async fn login(
     State(state): State<AppState>,
     Json(payload): Json<LoginRequest>,
-) -> Result<Json<ApiResponse<LoginResponse>>,ApiError> {
-
-    let res = auth_service::login(&state.db_pool, payload)
-    .await?;
-    //.map_err(ApiError::Auth)?;
-
-    Ok(Json(ApiResponse::success(res)))
-    
+) -> Result<Json<ApiResponse<LoginResponse>>,AppError> {
+    // 自动触发 #[from] 转换，代码极其干净
+    let token = auth_service::login(
+        &state.db_pool, 
+        payload
+    ).await?;
+    Ok(Json(ApiResponse::success(token)))
 }
 
+// 获取用户资料接口
 pub async fn profile(
     claims: Claims,
     State(state): State<AppState>,
-) -> Result<Json<ApiResponse<UserProfileResponse>>, ApiError> {
-
-    let data = users_service::get_user_profile(
+) -> Result<Json<ApiResponse<UserProfileResponse>>, AppError> {
+    let user = users_service::get_user_profile(
         &state.db_pool,
         claims.sub,
-    ).await?;
-    //.map_err(ApiError::Db)?;
-
-    Ok(Json(ApiResponse::success(data)))
+    ).await
+    .map_err(ApiError::from)?;
+    Ok(Json(ApiResponse::success(user)))
 }
-
-
-

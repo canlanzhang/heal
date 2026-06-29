@@ -22,7 +22,45 @@ impl ErrorResponse {
     }
 }
 
-// ==================== 🛠️ 顶层：ApiError (所有错误) ====================
+
+// ==================== 🛠️ AppError (API错误、系统启动、证书、环境错误) ====================
+
+#[derive(thiserror::Error, Debug)]
+pub enum AppError {
+    //API错误
+    #[error("epi error: {0} ")]
+    Api(#[from] ApiError),
+
+    // 启动时的致命错误
+    #[error("❌ TLS证书加载失败，请检查物理路径。错误原因: {0}")]
+    TlsConfig(String),
+
+    #[error("❌ 环境变量端口解析失败: {0}")]
+    PortParse(String),
+
+    #[error("❌ 数据库初始化连接失败: {0}")]
+    DbInit(String),
+}
+
+// 系统启动层面的错误通常会让程序退出(panic/return), 
+// 但为了架构统一，我们也为其实现 IntoResponse (以备后续在路由中使用)
+impl IntoResponse for AppError {
+    fn into_response(self) -> Response {
+        match self {
+            // 如果是 API 错误，直接委托给 ApiError 的 IntoResponse 去处理
+            AppError::Api(api_err) => api_err.into_response(),
+
+            _ => {
+                let status = StatusCode::INTERNAL_SERVER_ERROR;
+                (status, Json(ErrorResponse::new(self.to_string(), status))).into_response()
+            }            
+        }
+        
+    }
+}
+
+
+// ==================== 🛠️ ApiError (所有错误) ====================
 #[derive(thiserror::Error, Debug)]
 pub enum ApiError {
     #[error("database error: {0}")]
@@ -55,6 +93,8 @@ impl IntoResponse for ApiError {
                 ),
 
                 DbError::ValidationError(msg) => (StatusCode::BAD_REQUEST, msg),
+
+                DbError::DuplicateEntry => (StatusCode::CONFLICT, e.to_string()),
 
                 DbError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
 
@@ -89,27 +129,7 @@ impl IntoResponse for ApiError {
 
 
 
-// ==================== 🛠️ 新增：AppError (系统启动、证书、环境错误) ====================
 
-#[derive(thiserror::Error, Debug)]
-pub enum AppError {
-    #[error("❌ TLS证书加载失败，请检查物理路径。错误原因: {0}")]
-    TlsConfig(String),
-
-    #[error("❌ 环境变量端口解析失败: {0}")]
-    PortParse(String),
-
-    #[error("❌ 数据库初始化连接失败: {0}")]
-    DbInit(String),
-}
-// 系统启动层面的错误通常会让程序退出(panic/return), 
-// 但为了架构统一，我们也为其实现 IntoResponse (以备后续在路由中使用)
-impl IntoResponse for AppError {
-    fn into_response(self) -> Response {
-        let status = StatusCode::INTERNAL_SERVER_ERROR;
-        (status, Json(ErrorResponse::new(self.to_string(), status))).into_response()
-    }
-}
 
 
 // ==================== DbError ====================
@@ -129,6 +149,9 @@ pub enum DbError {
     #[error("Validation error: {0}")]
     ValidationError(String),
 
+    #[error("用户名或邮箱已存在")]
+    DuplicateEntry,
+
     // 新增：处理业务逻辑错误
     #[error("Bad request: {0}")]
     BadRequest(String),
@@ -146,6 +169,7 @@ impl IntoResponse for DbError {
             
             // 🛠️ 新增映射：参数校验失败返回 400 状态码
             DbError::ValidationError(msg) => (StatusCode::BAD_REQUEST, msg),
+            DbError::DuplicateEntry => (StatusCode::CONFLICT, self.to_string()),
             
             DbError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
             DbError::Internal(msg) => (StatusCode::INTERNAL_SERVER_ERROR, msg),

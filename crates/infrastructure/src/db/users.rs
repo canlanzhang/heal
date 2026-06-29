@@ -23,8 +23,7 @@ pub async fn list_users(pool: &PgPool) -> Result<Vec<User>, DbError> {
         "#
     )
     .fetch_all(pool)
-    .await
-    .map_err(DbError::Sql)?;
+    .await?;
 
     Ok(users)
 }
@@ -57,7 +56,14 @@ pub async fn create_user(
     )
     .fetch_one(pool)
     .await
-    .map_err(DbError::Sql)?;
+    .map_err(|e| {
+        if let sqlx::Error::Database(db_err) =&e {
+            if db_err.code().map(|c| c == "23505").unwrap_or(false) {
+                return DbError::DuplicateEntry;
+            }
+        }
+        DbError::Sql(e)
+    })?;
 
     Ok(user)
 }
@@ -93,8 +99,7 @@ pub async fn update_user(
         user_id
     )
     .fetch_optional(pool)
-    .await
-    .map_err(DbError::Sql)?;
+    .await?;
 
     user.ok_or(DbError::NotFound)
 }
@@ -110,8 +115,7 @@ pub async fn delete_user(pool: &PgPool, user_id: i32) -> Result<(), DbError> {
         user_id
     )
     .execute(pool)
-    .await
-    .map_err(DbError::Sql)?;
+    .await?;
 
     if result.rows_affected() == 0 {
         return Err(DbError::NotFound);
@@ -140,7 +144,6 @@ pub async fn get_user_by_id(pool: &PgPool, user_id: i32) -> Result<User, DbError
     )
     .fetch_optional(pool)
     .await?;
-    //.map_err(DbError::Sql)?;
 
     user.ok_or(DbError::NotFound)
 }
@@ -166,8 +169,7 @@ pub async fn get_user_by_username(
         username
     )
     .fetch_optional(pool)
-    .await
-    .map_err(DbError::Sql)?;
+    .await?;
 
     user.ok_or(DbError::NotFound)
 }
@@ -192,8 +194,7 @@ pub async fn query_user_for_login(
         username
     )
     .fetch_optional(pool)
-    .await
-    .map_err(DbError::Sql)?;
+    .await?;
 
     user.ok_or(DbError::NotFound)
 }
