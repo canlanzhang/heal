@@ -19,8 +19,7 @@ pub async fn list_articles(pool: &PgPool) -> Result<Vec<Article>, DbError> {
         "#
     )
     .fetch_all(pool)
-    .await
-    .map_err(DbError::Sql)?;
+    .await?;
 
     Ok(articles)
 }
@@ -35,16 +34,16 @@ pub async fn create_article(
         Article,
         r#"
         INSERT INTO heal_articles (title, content, status, author_id)
-        VALUES ($1, $2, 'draft', $3)
+        VALUES ($1, $2, $3, $4)
         RETURNING id, title, content, status, author_id
         "#,
         payload.title,
         payload.content,
+        payload.status,
         author_id
     )
     .fetch_one(pool)
-    .await
-    .map_err(DbError::Sql)?;
+    .await?;
 
     Ok(res)
 }
@@ -73,8 +72,7 @@ pub async fn update_article(
         article_id
     )
     .fetch_optional(pool)
-    .await
-    .map_err(DbError::Sql)?;
+    .await?;
 
     res.ok_or(DbError::NotFound)
 }
@@ -86,8 +84,7 @@ pub async fn delete_article(pool: &PgPool, id: i32) -> Result<(), DbError> {
         id
     )
     .execute(pool)
-    .await
-    .map_err(DbError::Sql)?;
+    .await?;
 
     if result.rows_affected() == 0 {
         return Err(DbError::NotFound);
@@ -107,8 +104,7 @@ pub async fn get_article_by_id(pool: &PgPool, id: i32) -> Result<Article, DbErro
         id
     )
     .fetch_optional(pool)
-    .await
-    .map_err(DbError::Sql)?;
+    .await?;
 
     res.ok_or(DbError::NotFound)
 }

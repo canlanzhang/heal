@@ -22,7 +22,8 @@ pub async fn login(
     let token = auth_service::login(
         &state.db_pool, 
         payload
-    ).await?;
+    ).await
+    .map_err(ApiError::from)?;
     Ok(Json(ApiResponse::success(token)))
 }
 

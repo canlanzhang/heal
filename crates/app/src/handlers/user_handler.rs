@@ -35,9 +35,11 @@ use infrastructure::{
 pub async fn list_users(
     _claims: Claims,
     State(state): State<AppState>,
-) -> Result<Json<ApiResponse<Vec<UserListItem>>>, DbError> {
+) -> Result<Json<ApiResponse<Vec<UserListItem>>>, AppError> {
 
-    let list = users_service::list_users(&state.db_pool).await?;
+    let list = users_service::list_users(&state.db_pool)
+    .await
+    .map_err(ApiError::from)?;
 
     Ok(Json(ApiResponse::success(list)))
 }

@@ -13,6 +13,7 @@ pub struct ArticleListItem {
 pub struct CreateArticlePayload {
     pub title: String,
     pub content: String,
+    pub status: String,
 }
 
 #[derive(Deserialize)]

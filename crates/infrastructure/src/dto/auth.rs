@@ -7,7 +7,8 @@ use serde::{Serialize, Deserialize};
 use chrono::{ Duration, Utc}; 
 use jsonwebtoken::{encode, decode, 
     EncodingKey, DecodingKey, Header, Validation, Algorithm};
-use crate::errors::{AuthError};
+
+use crate::errors::{ApiError, AuthError}; 
 
 
 #[derive(Debug, Deserialize)]
@@ -87,7 +88,7 @@ impl<S> FromRequestParts<S> for Claims
 where
     S: Send + Sync,
 {
-    type Rejection = AuthError; // 统一抛出你的 AuthError
+    type Rejection = ApiError; // 统一抛出你的 AuthError
 
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
         // 从请求头提取 Authorization
@@ -95,16 +96,16 @@ where
             .headers
             .get(axum::http::header::AUTHORIZATION)
             .and_then(|value| value.to_str().ok())
-            .ok_or(AuthError::MissingCredentials)?; // 找不到 Header 返回 400 错误
-
+            .ok_or(crate::errors::AuthError::MissingCredentials)?; // 找不到 Header 返回 400 错误
+        
         // 验证 Bearer 前缀
         if !auth_header.starts_with("Bearer ") {
-            return Err(AuthError::InvalidToken);
+            return Err(ApiError::from(AuthError::InvalidToken));
         }
         let token = &auth_header[7..];
 
         // 验证 Token 合法性与过期时间
-        let claims = Claims::decode_token(token).map_err(|_| AuthError::InvalidToken)?;
+        let claims = Claims::decode_token(token).map_err(|_| crate::errors::AuthError::InvalidToken)?;
 
         Ok(claims)
     }

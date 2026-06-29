@@ -7,28 +7,28 @@ use crate::errors::ApiError;
 pub async fn login(
     pool: &PgPool,
     payload: LoginRequest,
-) -> Result<LoginResponse, ApiError> {
+) -> Result<LoginResponse, AuthError> {
 
-    // 1️⃣ 查用户（DbError → AuthError）
+    // 1️ 查用户（DbError → AuthError）
     let user = db::query_user_for_login(pool, &payload.username)
         .await
         .map_err(|e| match e {
-            DbError::NotFound => ApiError::Auth(AuthError::WrongCredentials),
-            _ => ApiError::Db(e)
+            DbError::NotFound => AuthError::WrongCredentials,
+            _ => AuthError::InternalDbError(e)
         })?;
 
-    // 2️⃣ 校验密码
+    // 2️ 校验密码
     let is_valid  = verify(&payload.password, &user.password_hash)
-        .map_err(|e| ApiError::Auth(AuthError::VerifyInternalError(e.to_string())))?;
+        .map_err(|e| AuthError::VerifyInternalError(e.to_string()))?;
 
-    // 3️⃣ 密码错误
+    // 3️ 密码错误
     if !is_valid {//Unauthorized
-        return Err(ApiError::Auth(AuthError::WrongCredentials))?;
+        return Err(AuthError::WrongCredentials)?;
     }
 
-    // 4️⃣ 生成 Token
+    // 4️ 生成 Token
     let token = Claims::generate_token(user.id)
-        .map_err(|_| ApiError::Auth(AuthError::TokenCreation))?;
+        .map_err(|_| AuthError::TokenCreation)?;
 
     Ok(LoginResponse {
         token,
