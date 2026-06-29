@@ -3,12 +3,13 @@ use axum::{
     Json, 
     extract::{Path, State}, 
 };
-use infrastructure::dto::users::{
-    UserProfileResponse,
-};
-use infrastructure::dto::auth::Claims;
 use infrastructure::{
-    dto::*,
+    dto::{
+        auth::Claims,
+        users::{UserListItem, UserProfileResponse, CreateUserPayload,UpdateUserPayload },
+        extractor::ValidatedJson,
+        ApiResponse,
+    },
     service::users_service,
     entity::User, 
     errors::{AppError,ApiError},

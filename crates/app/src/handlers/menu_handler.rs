@@ -4,7 +4,11 @@ use axum::{
     extract::{Path, State}, 
 };
 use infrastructure::{ 
-    dto::*, 
+    dto::{
+        auth::Claims,
+        menus::{MenuItem, CreateMenuPayload,UpdateMenuPayload },
+        ApiResponse,
+    },
     entity::Menu, 
     errors::{AppError,ApiError}, 
     service::{menus_service},
@@ -12,6 +16,7 @@ use infrastructure::{
 
 
 pub async fn list_menus(
+    _claims: Claims,
     State(state): State<AppState>,
 ) -> Result<Json<ApiResponse<Vec<MenuItem>>>, AppError> {
 
@@ -24,6 +29,7 @@ pub async fn list_menus(
 }
 
 pub async fn create_menu(
+    _claims: Claims,
     State(state): State<AppState>,
     Json(payload): Json<CreateMenuPayload>,
 ) -> Result<Json<ApiResponse<()>>, AppError> {
@@ -36,6 +42,7 @@ pub async fn create_menu(
 }
 
 pub async fn get_menu(
+    _claims: Claims,
     State(state): State<AppState>,
     Path(id): Path<i32>,
 ) -> Result<Json<ApiResponse<Menu>>, AppError> {
@@ -49,6 +56,7 @@ pub async fn get_menu(
 
 
 pub async fn update_menu(
+    _claims: Claims,
     State(state): State<AppState>,
     Path(id): Path<i32>,
     Json(payload): Json<UpdateMenuPayload>,
@@ -62,6 +70,7 @@ pub async fn update_menu(
 }
 
 pub async fn delete_menu(
+    _claims: Claims,
     State(state): State<AppState>,
     Path(id): Path<i32>,
 ) -> Result<Json<ApiResponse<()>>, AppError> {

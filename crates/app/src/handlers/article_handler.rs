@@ -6,8 +6,11 @@ use axum::{
 use infrastructure::{
     entity::Article, 
     service::articles_service,
-    dto::*,
-    dto::auth::Claims,
+    dto::{
+        auth::Claims,
+        articles::{ArticleListItem, CreateArticlePayload,UpdateArticlePayload },
+        ApiResponse,
+    },
     errors::{AppError,ApiError},
 }; // 引入底层的基础设施和连接池
 
