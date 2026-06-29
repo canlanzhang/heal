@@ -67,7 +67,7 @@ const openCreate = () => {
     path: "",
     title: "",
     icon: "",
-    role: "admin",
+    role: "super_admin",
     sort: 1,
   };
 
