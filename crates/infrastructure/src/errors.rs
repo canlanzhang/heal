@@ -5,6 +5,7 @@ use axum::{
 };
 use serde::Serialize;
 
+
 // 统一错误响应格式
 #[derive(Serialize)]
 pub struct ErrorResponse {
@@ -20,6 +21,73 @@ impl ErrorResponse {
         }
     }
 }
+
+// ==================== 🛠️ 顶层：ApiError (所有错误) ====================
+#[derive(thiserror::Error, Debug)]
+pub enum ApiError {
+    #[error("database error: {0}")]
+    Db(#[from] DbError),
+
+    #[error("auth error: {0}")]
+    Auth(#[from] AuthError), 
+
+    #[error("internal error: {0}")]
+    Internal(String),
+}
+
+impl IntoResponse for ApiError {
+    fn into_response(self) -> Response {
+        let (status,message) = match self {
+
+            ApiError::Db(e) => match e {
+                DbError::NotFound => (StatusCode::NOT_FOUND, e.to_string()),
+
+                DbError::Sql(_) => (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Database error".to_string(),
+                ),
+
+                DbError::Unauthorized => (StatusCode::UNAUTHORIZED, e.to_string()),
+
+                DbError::TokenError => (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Token error".to_string(),
+                ),
+
+                DbError::ValidationError(msg) => (StatusCode::BAD_REQUEST, msg),
+
+                DbError::BadRequest(msg) => (StatusCode::BAD_REQUEST, msg),
+
+                DbError::Internal(msg) => (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    msg,
+                ),
+
+            },
+            
+            ApiError::Auth(e) => match e {
+                AuthError::WrongCredentials => (StatusCode::UNAUTHORIZED, e.to_string()),
+                AuthError::MissingCredentials => (StatusCode::BAD_REQUEST, e.to_string()),
+                AuthError::TokenCreation => (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()),
+                AuthError::InvalidToken => (StatusCode:: UNAUTHORIZED, e.to_string()),
+                AuthError::VerifyInternalError(msg) => {
+                    // 1. 把真实的底层报错打印到【后端日志】中，方便程序员排查
+                    tracing::error!("密码校验底层异常: {}", msg); 
+                    // 2. 返回给【前端】的依然是安全的模糊提示
+                   (StatusCode::INTERNAL_SERVER_ERROR,"服务器内部异常".to_string())
+                }
+            },
+            
+            ApiError::Internal(msg) => (StatusCode::INTERNAL_SERVER_ERROR,msg),
+        };
+
+        (status,Json(ErrorResponse::new(message, status))).into_response()
+        
+    }
+}
+
+
+
 
 // ==================== 🛠️ 新增：AppError (系统启动、证书、环境错误) ====================
 
@@ -93,12 +161,18 @@ impl IntoResponse for DbError {
 pub enum AuthError {
     #[error("Wrong credentials")]
     WrongCredentials,
+
     #[error("Missing credentials")]
     MissingCredentials,
+
     #[error("Token creation failed")]
     TokenCreation,
+
     #[error("Invalid token")]
     InvalidToken,
+
+    #[error("Password verification internal error: {0}")]
+    VerifyInternalError(String), 
 }
 
 impl IntoResponse for AuthError {
@@ -108,6 +182,7 @@ impl IntoResponse for AuthError {
             AuthError::MissingCredentials => (StatusCode::BAD_REQUEST, self.to_string()),
             AuthError::TokenCreation => (StatusCode::INTERNAL_SERVER_ERROR, self.to_string()),
             AuthError::InvalidToken => (StatusCode::UNAUTHORIZED, self.to_string()),
+            AuthError::VerifyInternalError(_) => (StatusCode::INTERNAL_SERVER_ERROR,"服务器内部异常".to_string()),
         };
 
         (status, Json(ErrorResponse::new(message, status))).into_response()

@@ -139,8 +139,8 @@ pub async fn get_user_by_id(pool: &PgPool, user_id: i32) -> Result<User, DbError
         user_id
     )
     .fetch_optional(pool)
-    .await
-    .map_err(DbError::Sql)?;
+    .await?;
+    //.map_err(DbError::Sql)?;
 
     user.ok_or(DbError::NotFound)
 }

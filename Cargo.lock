@@ -1057,6 +1057,8 @@ dependencies = [
  "serde",
  "sqlx",
  "thiserror",
+ "tracing",
+ "tracing-subscriber",
  "validator",
 ]
 

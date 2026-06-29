@@ -8,6 +8,8 @@ axum = { workspace = true }
 sqlx = { workspace = true }
 serde = {workspace = true }
 chrono = {workspace = true }
+tracing = {workspace = true }
+tracing-subscriber = { workspace = true }
 thiserror = {workspace =true }
 bcrypt = { workspace = true }
 jsonwebtoken = {workspace =true }
