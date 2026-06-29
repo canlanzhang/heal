@@ -2,14 +2,11 @@ use axum::{
     extract::{FromRequestParts},
     http::request::Parts,
 };
-
 use serde::{Serialize, Deserialize};
 use chrono::{ Duration, Utc}; 
 use jsonwebtoken::{encode, decode, 
     EncodingKey, DecodingKey, Header, Validation, Algorithm};
-
 use crate::errors::{ApiError, AuthError}; 
-
 
 #[derive(Debug, Deserialize)]
 pub struct LoginRequest {

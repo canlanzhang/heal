@@ -1,13 +1,10 @@
-
-
+use sqlx::PgPool;
 use crate::entity::{Article};
 use crate::dto::articles::{
     CreateArticlePayload,
     UpdateArticlePayload,
 };
-
 use crate::errors::DbError;
-use sqlx::postgres::{PgPool};
 
 pub async fn list_articles(pool: &PgPool) -> Result<Vec<Article>, DbError> {
     let articles = sqlx::query_as!(

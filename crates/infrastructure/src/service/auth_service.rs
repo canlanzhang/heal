@@ -2,7 +2,12 @@ use sqlx::PgPool;
 use bcrypt::verify;
 
 use crate::{AuthError, DbError, db};
-use crate::dto::auth::*;
+use crate::dto::auth::{
+    Claims,
+    LoginRequest,
+    LoginResponse
+};
+
 pub async fn login(
     pool: &PgPool,
     payload: LoginRequest,

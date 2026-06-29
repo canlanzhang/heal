@@ -1,6 +1,10 @@
 use sqlx::PgPool;
 use crate::db;
-use crate::dto::menus::*;
+use crate::dto::menus::{
+    MenuItem,
+    CreateMenuPayload,
+    UpdateMenuPayload
+};
 use crate::entity::Menu;
 use crate::errors::DbError;
 

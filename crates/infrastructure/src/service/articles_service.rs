@@ -1,10 +1,7 @@
 use sqlx::PgPool;
-
 use crate::db;
-
 use crate::dto::ArticleListItem;
 use crate::errors::DbError;
-
 
 use crate::{
     dto::articles::{
@@ -28,7 +25,6 @@ pub async fn list_articles(
 
     Ok(res)
 }
-
 
 pub async fn create_article(
     pool: &PgPool,

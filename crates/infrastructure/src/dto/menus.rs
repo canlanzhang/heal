@@ -1,8 +1,4 @@
-
 use serde::{ Serialize,Deserialize};
-
-
-
 
 #[derive(Debug, Deserialize)]
 pub struct CreateMenuPayload {
@@ -25,8 +21,6 @@ pub struct UpdateMenuPayload {
     pub parent_id: Option<i32>,
     pub sort: Option<i32>,
 }
-
-
 
 #[derive(Debug, Serialize)]
 pub struct MenuItem {

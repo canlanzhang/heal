@@ -1,6 +1,10 @@
 use sqlx::PgPool;
-use crate::dto::menus::*;
 use crate::entity::Menu;
+use crate::dto::menus::{
+    MenuItem,
+    CreateMenuPayload,
+    UpdateMenuPayload
+};
 use crate::errors::DbError;
 
 pub async fn list_menus(pool: &PgPool) -> Result<Vec<MenuItem>, DbError> {

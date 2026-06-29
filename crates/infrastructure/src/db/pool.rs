@@ -1,5 +1,8 @@
+use sqlx::{
+    PgPool,
+    postgres::PgPoolOptions
+};
 use crate::errors::DbError;
-use sqlx::postgres::{PgPool, PgPoolOptions};
 use std::time::Duration;
 
 pub async fn create_pool() ->  Result<PgPool, DbError> {

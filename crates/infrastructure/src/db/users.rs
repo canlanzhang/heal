@@ -1,12 +1,10 @@
-
+use sqlx::PgPool;
 use crate::entity::{User};
 use crate::dto::users::{
     CreateUserPayload,
     UpdateUserPayload,
 };
-
 use crate::errors::DbError;
-use sqlx::postgres::{PgPool};
 
 pub async fn list_users(pool: &PgPool) -> Result<Vec<User>, DbError> {
     let users = sqlx::query_as!(

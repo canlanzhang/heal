@@ -1,14 +1,14 @@
+use crate::state::AppState; 
 use axum::{
     Json, 
     extract::{Path, State}, 
 };
-
-use crate::state::AppState; 
-
 use infrastructure::{ 
-    dto::*, entity::Menu, errors::*, service::{menus_service},
-
-}; // 引入底层的基础设施和连接池
+    dto::*, 
+    entity::Menu, 
+    errors::{AppError,ApiError}, 
+    service::{menus_service},
+}; 
 
 
 pub async fn list_menus(
@@ -20,7 +20,6 @@ pub async fn list_menus(
     ).await
     .map_err(ApiError::from)?;
     
-
     Ok(Json(ApiResponse::success(menus)))
 }
 

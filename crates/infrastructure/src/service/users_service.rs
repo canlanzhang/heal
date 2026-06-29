@@ -1,21 +1,18 @@
 use sqlx::PgPool;
-
 use crate::db;
-use crate::dto::users::{UserListItem,UserProfileResponse, UserInfo};
-
+use crate::dto::users::{
+    UserListItem,
+    UserProfileResponse, 
+    UserInfo
+};
 use crate::errors::DbError;
 use crate::service::get_menus_by_role;
-
-
-
-
-use bcrypt::{hash, DEFAULT_COST};
-
-use crate::dto::users::CreateUserPayload;
-use crate::dto::users::UpdateUserPayload;
 use crate::entity::User;
-
-
+use crate::dto::users::{
+    CreateUserPayload,
+    UpdateUserPayload
+};
+use bcrypt::{hash, DEFAULT_COST};
 
 pub async fn get_user_profile(
     pool: &PgPool,

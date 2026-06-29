@@ -17,6 +17,3 @@ where
         }
     }))
 }
-
-// 扩展思路：如果是数字类型，通常需要另一个函数，因为数字不能直接 trim
-// pub fn empty_str_as_none_u64<'de, D>(deserializer: D) -> Result<Option<u64>, D::Error> ...

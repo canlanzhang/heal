@@ -1,9 +1,4 @@
-
-
 use serde::{Serialize};
-
-
-
 
 #[derive(Serialize)]
 pub struct ApiResponse<T> {
@@ -36,15 +31,3 @@ where
         }
     }
 }
-
-
-
-/* 
-#[derive(Serialize)]
-pub struct MenuItem {
-    pub name: String,
-    pub path: String,
-    pub title: String,
-    pub icon: Option<String>,
-}
-    */

@@ -1,14 +1,9 @@
-
+mod routes;
+mod handlers;
 mod state;
+
 use crate::state::AppState;
 use infrastructure::errors::AppError;
-
-mod handlers;
-
-mod routes;
-
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
-use std::path::PathBuf;
 use axum::{
     handler::HandlerWithoutStateExt,
     http::{StatusCode, Uri},
@@ -16,8 +11,9 @@ use axum::{
     BoxError,
 };
 use axum_server::tls_rustls::RustlsConfig;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use std::path::PathBuf;
 use std::net::SocketAddr;
-
 
 #[allow(dead_code)]
 #[derive(Clone, Copy)]

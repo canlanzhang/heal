@@ -1,35 +1,18 @@
+use crate::state::AppState; 
 use axum::{
     Json, 
-
     extract::{Path, State}, 
-
 };
-
-use crate::state::AppState; 
 use infrastructure::dto::users::{
     UserProfileResponse,
-
 };
-
-use infrastructure::dto::auth::{
-
-    Claims,
-};
-
+use infrastructure::dto::auth::Claims;
 use infrastructure::{
     dto::*,
     service::users_service,
-    entity::{
-        User,
-
-    }, 
-    errors::*,
-
-}; // 引入底层的基础设施和连接池
-
-
-
-
+    entity::User, 
+    errors::{AppError,ApiError},
+}; 
 
 // GET /users
 pub async fn list_users(
@@ -43,7 +26,6 @@ pub async fn list_users(
 
     Ok(Json(ApiResponse::success(list)))
 }
-
 
 // POST /users
 pub async fn create_user(

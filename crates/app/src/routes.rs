@@ -1,15 +1,10 @@
-
 use axum::{routing::{post, delete, patch, get}, Router};
 use tower_http::cors::CorsLayer;
-
 use crate::state::AppState;
 use crate::handlers::{
     login, profile,
-
     list_users,create_user,get_user,update_user,delete_user,
-
-    list_menus,create_menu,get_menu,update_menu,delete_menu,
-    
+    list_menus,create_menu,get_menu,update_menu,delete_menu,    
     list_articles,create_article,update_article,delete_article,get_article,
     };
 
