@@ -81,7 +81,7 @@ async fn main() -> anyhow::Result<()> {
 
     tracing::info!("🔒 TLS 证书加载成功 (路径: {})", cert_path.display());
 
-    let app =routes::get_router(app_state);
+    let app =routes::create_router(app_state);
     tracing::info!("路由加载成功");
 
 
