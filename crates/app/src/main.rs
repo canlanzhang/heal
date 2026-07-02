@@ -1,3 +1,4 @@
+mod trace;
 mod routes;
 mod handlers;
 mod state;

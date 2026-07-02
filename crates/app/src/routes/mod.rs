@@ -1,12 +1,9 @@
 use crate::state::AppState;
 use std::sync::Arc;
-use axum::{routing::{get}, Router};
+use axum::{Router, middleware, routing::get};
 use tower_http::cors::CorsLayer;
+use crate::trace::middleware::trace_middleware;
 
-
-async fn health_check() -> &'static str {
-    "OK"
-}
 
 pub mod auth;
 pub mod users;
@@ -18,6 +15,10 @@ use self::users::users_router;
 use self::menus::menus_router;
 use self::articles::articles_router;
 
+
+async fn health_check() -> &'static str {
+    "OK"
+}
 
 pub fn create_router(state: AppState) -> Router  {
     // 用 Arc 包装状态
@@ -41,7 +42,7 @@ pub fn create_router(state: AppState) -> Router  {
 
 
         .route("/api/v1/health", get(health_check))
-
+        .layer(middleware::from_fn(trace_middleware))
         .layer(CorsLayer::permissive())
         .with_state(shared_state)
 }

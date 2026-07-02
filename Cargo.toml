@@ -10,13 +10,14 @@ resolver = "2"
 # 👇 将本地的 infrastructure 注册进工作区依赖
 infrastructure = { path = "crates/infrastructure" }
 tokio = { version = "1.52", features = ["full"] }
-axum = { version = "0.8", features = ["tracing"] }
+axum = { version = "0.8" }
 axum-server = { version = "0.8", features = ["tls-rustls"] } # 用于 HTTPS
 reqwest = { version = "0.13.3", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.149"
 chrono = { version = "0.4", features = ["serde"] }
-tower-http = { version = "0.5", features = ["cors"] }
+tower = { version = "0.5" } 
+tower-http = { version = "0.5", features = ["cors","trace"] }
 thiserror = "2.0"
 hyper = { version = "1.9", features = ["full"] }             # 用于 HTTP 重定向
 rustls-pemfile = "2"
@@ -28,3 +29,4 @@ dotenvy = "0.15"
 bcrypt = "0.19.1"
 jsonwebtoken = { version = "10", features = ["aws_lc_rs"] }
 validator = { version = "0.20.0", features = ["derive"] }
+uuid = { version = "1", features = ["v4", "serde"] }
