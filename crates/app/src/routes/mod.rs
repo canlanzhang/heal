@@ -1,6 +1,8 @@
+use crate::state::AppState;
+use std::sync::Arc;
 use axum::{routing::{get}, Router};
 use tower_http::cors::CorsLayer;
-use crate::state::AppState;
+
 
 async fn health_check() -> &'static str {
     "OK"
@@ -18,6 +20,9 @@ use self::articles::articles_router;
 
 
 pub fn create_router(state: AppState) -> Router  {
+    // 用 Arc 包装状态
+    let shared_state = Arc::new(state);
+
     Router::new()
         // ================= AUTH =================
         .nest("/api/v1/auth", auth_router())
@@ -38,6 +43,6 @@ pub fn create_router(state: AppState) -> Router  {
         .route("/api/v1/health", get(health_check))
 
         .layer(CorsLayer::permissive())
-        .with_state(state)
+        .with_state(shared_state)
 }
 

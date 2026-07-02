@@ -2,6 +2,7 @@ use axum::{
     extract::{State}, 
     Json,     
 };
+use std::sync::Arc;
 use crate::state::AppState; 
 use infrastructure::{
     service::{auth_service, users_service },
@@ -15,7 +16,7 @@ use infrastructure::{
 
 // 登录接口
 pub async fn login(
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
     Json(payload): Json<LoginRequest>,
 ) -> Result<Json<ApiResponse<LoginResponse>>,AppError> {
     // 自动触发 #[from] 转换，代码极其干净
@@ -30,7 +31,7 @@ pub async fn login(
 // 获取用户资料接口
 pub async fn profile(
     claims: Claims,
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
 ) -> Result<Json<ApiResponse<UserProfileResponse>>, AppError> {
     let user = users_service::get_user_profile(
         &state.db_pool,

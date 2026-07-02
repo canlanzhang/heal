@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::state::AppState; 
 use axum::{
     Json, 
@@ -16,7 +17,7 @@ use infrastructure::{
 
 pub async fn list_articles(
     _claims: Claims, // 🛠️ 鉴权守卫：必须登录才能删除
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
 ) -> Result<Json<ApiResponse<Vec<ArticleListItem>>>, AppError> {
     
     let articles = articles_service::list_articles(
@@ -29,7 +30,7 @@ pub async fn list_articles(
 
 pub async fn create_article(
     claims: Claims,
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
     Json(payload): Json<CreateArticlePayload>,
 ) -> Result<Json<ApiResponse<Article>>, AppError> {
 
@@ -47,7 +48,7 @@ pub async fn create_article(
 pub async fn update_article(
     _claims: Claims,
     Path(id): Path<i32>,
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
     Json(payload): Json<UpdateArticlePayload>,
 ) -> Result<Json<ApiResponse<Article>>, AppError> {
 
@@ -63,7 +64,7 @@ pub async fn update_article(
 pub async fn delete_article(
     _claims: Claims,
     Path(id): Path<i32>,
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
 ) -> Result<Json<ApiResponse<()>>, AppError> {
 
     articles_service::delete_article(
@@ -76,7 +77,7 @@ pub async fn delete_article(
 
 
 pub async fn get_article(
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
     Path(id): Path<i32>,
 ) -> Result<Json<ApiResponse<Article>>, AppError> {
 

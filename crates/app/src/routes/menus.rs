@@ -1,4 +1,5 @@
 use axum::{routing::{post, delete, patch, get}, Router};
+use std::sync::Arc;
 use crate::state::AppState;
 use crate::handlers::{
     list_menus,
@@ -8,7 +9,7 @@ use crate::handlers::{
     delete_menu,    
     };
 
-pub fn menus_router() -> Router<AppState> {
+pub fn menus_router() -> Router<Arc<AppState>> {
     Router::new()
         // ================= MENU =================
         .route("/", get(list_menus))          

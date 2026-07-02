@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::state::AppState; 
 use axum::{
     Json, 
@@ -18,7 +19,7 @@ use infrastructure::{
 // GET /users
 pub async fn list_users(
     _claims: Claims,
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
 ) -> Result<Json<ApiResponse<Vec<UserListItem>>>, AppError> {
 
     let list = users_service::list_users(&state.db_pool)
@@ -31,7 +32,7 @@ pub async fn list_users(
 // POST /users
 pub async fn create_user(
     _claims: Claims,
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
     ValidatedJson(payload): ValidatedJson<CreateUserPayload>,
 ) -> Result<Json<ApiResponse<User>>, AppError> {
 
@@ -48,7 +49,7 @@ pub async fn create_user(
 pub async fn get_user(
     _claims: Claims,
     Path(user_id): Path<i32>,
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
 ) -> Result<Json<ApiResponse<UserProfileResponse>>, AppError> {
 
     let data = users_service::get_user(
@@ -65,7 +66,7 @@ pub async fn get_user(
 pub async fn update_user(
     _claims: Claims, // 🛠️ 鉴权守卫：必须登录才能修改
     Path(user_id): Path<i32>,
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
     ValidatedJson(payload): ValidatedJson<UpdateUserPayload>, // 🛠️ 防弹衣：自动触发格式校验
 ) -> Result<Json<ApiResponse<User>>, AppError> {
 
@@ -82,7 +83,7 @@ pub async fn update_user(
 pub async fn delete_user(
     claims: Claims, // 🛠️ 鉴权守卫：必须登录才能删除
     Path(user_id): Path<i32>,
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
 ) -> Result<Json<ApiResponse<()>>, AppError> {
 
     users_service::delete_user(&state.db_pool, user_id,claims.sub

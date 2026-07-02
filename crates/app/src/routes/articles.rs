@@ -1,4 +1,5 @@
 use axum::{routing::{post, delete, patch, get}, Router};
+use std::sync::Arc;
 use crate::state::AppState;
 use crate::handlers::{
     list_articles,
@@ -9,7 +10,7 @@ use crate::handlers::{
     };
 
 
-pub fn articles_router() -> Router<AppState> {
+pub fn articles_router() -> Router<Arc<AppState>> {
     Router::new()
         // ================= Article =================
         .route("/", get(list_articles))
